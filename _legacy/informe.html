@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WISE | Informe - Análisis de Datos</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Specific Styles for Report */
+        .report-header {
+            padding: 120px 0 60px;
+            background-color: var(--bg-card);
+            text-align: center;
+        }
+
+        .toc {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .toc h3 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .toc ul li {
+            margin-bottom: 10px;
+        }
+
+        .toc a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .data-table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+            background: #000;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--secondary);
+        }
+
+        .chart-placeholder {
+            background-color: #000;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .chart-placeholder .label {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .analysis-block {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">WISE <span>Project</span></a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="informe.html" class="active">Informe</a></li>
+                    <li><a href="retos.html">Retos</a></li>
+                    <li><a href="retos.html" class="btn btn-primary">Empieza los retos</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Report Header -->
+    <section class="report-header">
+        <div class="container">
+            <h1>Informe: Análisis del <span class="text-secondary">Agujero de Ozono</span></h1>
+            <p style="max-width: 700px; margin: 20px auto 0; color: var(--text-muted);">Un estudio basado en datos
+                históricos de la NASA sobre la concentración de ozono, emisiones y consumo global (1979-2020).</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3>Contenido del Informe</h3>
+                <ul>
+                    <li><a href="#resumen">1. Resumen del Proyecto</a></li>
+                    <li><a href="#intro">2. Introducción</a></li>
+                    <li><a href="#datos">3. Exploración de Datos</a></li>
+                    <li><a href="#analisis">4. Análisis Gráfico y Discusión</a></li>
+                    <li><a href="#conclusiones">5. Conclusiones y Futuro</a></li>
+                </ul>
+            </div>
+
+            <!-- 1. Resumen -->
+            <div id="resumen" class="analysis-block">
+                <h2>1. Resumen del Proyecto</h2>
+                <p>Este informe analiza la evolución de la capa de ozono utilizando cuatro conjuntos de datos clave:</p>
+                <ul style="list-style-type: disc; margin-left: 20px; margin-top: 10px; color: var(--text-muted);">
+                    <li><strong>Concentración de ozono:</strong> Medida en Unidades Dobson (1979–2020).</li>
+                    <li><strong>Superficie del agujero:</strong> Extensión en millones de km².</li>
+                    <li><strong>Emisiones de sustancias (ODS):</strong> Naturales vs. Antropogénicas (1961–2014).</li>
+                    <li><strong>Consumo mundial:</strong> Toneladas de sustancias consumidas por países (1989–2014).
+                    </li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Objetivo:</strong> Correlacionar la reducción en el consumo humano
+                    tras el Protocolo de Montreal con la lenta pero observable recuperación de la estratosfera.</p>
+            </div>
+
+            <!-- 2. Intro -->
+            <div id="intro" class="analysis-block">
+                <h2>2. Introducción</h2>
+                <div class="grid-2">
+                    <div>
+                        <p>La capa de ozono es esencial para la vida, filtrando la radiación UV-B y UV-C del sol. Desde
+                            finales de los años 70, científicos detectaron un adelgazamiento alarmante sobre la
+                            Antártida.</p>
+                        <p style="margin-top: 20px;">La causa principal fue identificada en los <strong>CFCs y
+                                Halones</strong>, compuestos químicos estables en la superficie pero destructivos en la
+                            altura. Este fenómeno no es solo un problema ambiental, sino de salud pública global (cáncer
+                            de piel, cataratas).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Datos -->
+            <div id="datos" class="analysis-block">
+                <h2>3. Exploración Inicial de los Datos</h2>
+                <p>A continuación se detallan las variables utilizadas en el análisis:</p>
+
+                <h3 style="margin-top: 30px; font-size: 1.2rem; color: var(--secondary);">Estructura de Datasets</h3>
+
+                <div class="data-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dataset</th>
+                                <th>Columnas Clave</th>
+                                <th>Periodo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Concentración</td>
+                                <td>Year, Minimum daily concentration, Mean daily concentration</td>
+                                <td>1979 - 2020</td>
+                            </tr>
+                            <tr>
+                                <td>Superficie</td>
+                                <td>Year, Maximum ozone hole area, Mean ozone hole area</td>
+                                <td>1979 - 2020</td>
+                            </tr>
+                            <tr>
+                                <td>Emisiones</td>
+                                <td>Entity (Natural/Total), Year, ODS emissions (Tonnes)</td>
+                                <td>1961 - 2014</td>
+                            </tr>
+                            <tr>
+                                <td>Consumo</td>
+                                <td>Entity (Country/World), Year, Consumption (Tonnes)</td>
+                                <td>1989 - 2014</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Análisis -->
+            <div id="analisis" class="analysis-block">
+                <h2>4. Análisis Gráfico y Discusión</h2>
+
+                <!-- Gráfico 1 -->
+                <div style="margin-top: 40px;">
+                    <h3>a) Evolución de la Concentración (1979-2020)</h3>
+                    <div class="chart-placeholder">
+                        <span class="label">Gráfico 1: Caída de la Concentración (UD)</span>
+                    </div>
+                    <p><strong>Interpretación:</strong> Se observa una caída precipitada entre 1980 y 1990, pasando de
+                        ~225 UD a mínimos cercanos a 100 UD. A partir de los 2000, la caída se frena, mostrando
+                        oscilaciones anuales pero sin recuperar los niveles de 1979.</p>
+                </div>
+
+                <!-- Gráfico 2 -->
+                <div style="margin-top: 40px;">
+                    <h3>b) Superficie del Agujero</h3>
+                    <div class="chart-placeholder">
+                        <span class="label">Gráfico 2: Crecimiento del Agujero (km²)</span>
+                    </div>
+                    <p><strong>Interpretación:</strong> La superficie del agujero creció rápidamente en los 80s,
+                        alcanzando picos alarmantes a mediados de la década del 2000 (~29.9 M km²). En la última década,
+                        se observa una estabilización e incipient reducción.</p>
+                </div>
+
+                <!-- Gráfico 3 -->
+                <div style="margin-top: 40px;">
+                    <h3>c) Emisiones: Humanas vs. Naturales</h3>
+                    <div class="chart-placeholder">
+                        <span class="label">Gráfico 3: Emisiones (Toneladas)</span>
+                    </div>
+                    <p><strong>Interpretación:</strong> Las emisiones naturales se mantienen constantes (~165k t/año).
+                        Las emisiones totales se dispararon hasta casi 1.5M t/año a finales de los 80, demostrando que
+                        el problema era casi exclusivamente antropogénico. La caída posterior refleja el éxito de las
+                        regulaciones.</p>
+                </div>
+
+                <!-- Gráfico 4 -->
+                <div style="margin-top: 40px;">
+                    <h3>d) Consumo Mundial de ODS</h3>
+                    <div class="chart-placeholder">
+                        <span class="label">Gráfico 4: Reducción del Consumo</span>
+                    </div>
+                    <div class="grid-2">
+                        <div>
+                            <p><strong>Datos clave:</strong></p>
+                            <ul>
+                                <li>Máximo (1989): 1.316.294 Toneladas</li>
+                                <li>Mínimo (2014): 6.922 Toneladas</li>
+                                <li><strong>Reducción: > 99%</strong></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p><strong>Correlación:</strong> Al eliminar prácticamente el consumo, se ha logrado frenar
+                                el crecimiento del agujero. Sin embargo, debido a la larga vida útil de estas moléculas
+                                en la estratosfera, el "daño" tarda décadas en revertirse.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Conclusiones -->
+            <div id="conclusiones" class="analysis-block" style="border-bottom: none;">
+                <h2>5. Conclusiones Finales</h2>
+
+                <div
+                    style="background-color: rgba(167, 139, 250, 0.1); padding: 30px; border-radius: 12px; border-left: 4px solid var(--accent); margin-bottom: 30px;">
+                    <h3 style="color: var(--accent); margin-bottom: 15px;">Principales Aprendizajes</h3>
+                    <ul style="list-style-type: disc; margin-left: 20px;">
+                        <li><strong>La acción funciona:</strong> El Protocolo de Montreal es el acuerdo ambiental más
+                            exitoso de la historia.</li>
+                        <li><strong>Inercia atmosférica:</strong> Aunque dejemos de emitir hoy, la atmósfera tarda
+                            50-100 años en limpiarse.</li>
+                        <li><strong>Vigilancia continua:</strong> No se puede bajar la guardia; nuevas sustancias o el
+                            cambio climático podrían afectar la recuperación.</li>
+                    </ul>
+                </div>
+
+                <p><strong>Futuro:</strong> Se espera que la capa de ozono sobre la Antártida recupere los niveles de
+                    1980 aproximadamente hacia el año 2066, siempre que se mantengan las políticas actuales.</p>
+
+                <div style="margin-top: 40px; text-align: center;">
+                    <a href="#" class="btn btn-outline"
+                        onclick="alert('Descarga simulada: InformeFinal_WISE_2026.pdf')">Descargar PDF del Informe</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h4>WISE Project</h4>
+                    <p>Proyecto 2025/2026</p>
+                    <p>Autoras: Yasmina Tamouh y Valeria Linares</p>
+                </div>
+                <div class="footer-links">
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="informe.html">Informe</a></li>
+                        <li><a href="retos.html">Retos</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Datos basados en estimaciones históricas (NASA/series históricas usadas en el informe).</p>
+                <p>Última actualización: <span id="last-update-date"></span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

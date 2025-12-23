@@ -1,0 +1,320 @@
+/* Pastel Astron Home */
+.home-page {
+    /* No dark background overrides here, uses global body bg */
+    overflow-x: hidden;
+}
+
+/* 1. Hero Section */
+.astron-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 85vh;
+    padding-top: 2rem;
+    position: relative;
+}
+
+.hero-text-side {
+    flex: 1;
+    padding-right: 4rem;
+}
+
+.overline {
+    font-size: 0.9rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.astron-hero h1 {
+    font-size: 4.5rem;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    background: linear-gradient(to right, var(--color-primary-dark), var(--color-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.astron-hero p {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+    max-width: 450px;
+    line-height: 1.6;
+}
+
+.hero-breadcrumbs {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.hero-breadcrumbs .active {
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+/* Visual Side: Pastel "Planet" */
+.hero-visual-side {
+    flex: 1;
+    position: relative;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.planet-circle-pastel {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary-light));
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 50px rgba(167, 139, 250, 0.2);
+}
+
+.planet-inner {
+    width: 320px;
+    height: 320px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.05);
+}
+
+.planet-inner .big-stat {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+}
+
+.planet-inner .stat-desc {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+}
+
+/* Floating Cards */
+.floating-card {
+    position: absolute;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-card svg {
+    color: var(--color-secondary);
+    font-size: 1.2rem;
+}
+
+.floating-card.c1 {
+    top: 10%;
+    right: 10%;
+    animation-delay: 0s;
+}
+
+.floating-card.c2 {
+    bottom: 15%;
+    left: 10%;
+    animation-delay: 3s;
+}
+
+/* 2. Split Section */
+.astron-section {
+    padding: 6rem 0;
+}
+
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.image-block-pastel {
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(45deg, var(--color-secondary), var(--color-primary));
+    border-radius: var(--radius-lg) 0 var(--radius-lg) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.image-block-pastel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Simulate an image overlay or use a real image */
+    background: url('https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=2669&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.8;
+    mix-blend-mode: overlay;
+}
+
+.section-subtitle {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-secondary);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.split-content h2 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    color: var(--color-text-main);
+}
+
+.split-content p {
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+}
+
+.feature-list {
+    margin-bottom: 3rem;
+    display: grid;
+    gap: 1.5rem;
+}
+
+.feature-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.f-icon {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.f-text strong {
+    display: block;
+    color: var(--color-text-main);
+}
+
+.f-text span {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.btn-pill {
+    border-radius: 50px;
+    padding: 1rem 2.5rem;
+    display: inline-flex;
+    gap: 0.5rem;
+}
+
+/* 3. Stats Section */
+.astron-stats {
+    background: var(--color-surface);
+    padding: 4rem 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+}
+
+/* 4. CTA */
+.astron-cta {
+    padding: 6rem 0;
+    text-align: center;
+    background: linear-gradient(180deg, transparent 0%, var(--color-primary-light) 100%);
+}
+
+.cta-content h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.cta-content p {
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    .astron-hero {
+        flex-direction: column-reverse;
+        text-align: center;
+        padding-top: 2rem;
+    }
+
+    .hero-text-side {
+        padding-right: 0;
+    }
+
+    .split-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .astron-hero h1 {
+        font-size: 3rem;
+    }
+
+    .hero-visual-side {
+        height: 400px;
+        width: 100%;
+    }
+
+    .planet-circle-pastel {
+        width: 300px;
+        height: 300px;
+    }
+
+    .planet-inner {
+        width: 240px;
+        height: 240px;
+    }
+}

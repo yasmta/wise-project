@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Branding Colors - Pastel Lilac & Pink Theme */
+    --color-primary: #a78bfa;
+    /* Pastel Lilac (Violet 400) - Main Brand */
+    --color-primary-light: #ede9fe;
+    /* Very Light Lilac (Violet 50) */
+    --color-primary-dark: #7c3aed;
+    /* Deep Violet for text contrast */
+
+    --color-secondary: #f472b6;
+    /* Pastel Pink (Pink 400) - Highlights/Action */
+    --color-secondary-light: #fce7f3;
+    /* Very Light Pink (Pink 100) */
+
+    --color-accent: #c084fc;
+    /* Another Purple tone */
+    --color-accent-light: #f3e8ff;
+
+    /* Neutral Colors */
+    --color-bg: #fff0f5;
+    /* Lavender Blush / Very soft pinkish white background */
+    --color-surface: #ffffff;
+    --color-text-main: #4c1d95;
+    /* Deep Violet (Violet 950) - Softer than black, fits theme */
+    --color-text-muted: #86198f;
+    /* Magenta 800 - or Slate with purplish tint */
+    /* Actually let's keep text readable but themed */
+    --color-text-muted: #6b7280;
+    /* Gray 500 is safer for reading, maybe warm gray */
+
+    --color-border: #e9d5ff;
+    /* Light Purple border */
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 4rem;
+    --spacing-xl: 8rem;
+
+    /* Radius - More rounded for playful pastel look */
+    --radius-sm: 12px;
+    --radius-md: 24px;
+    --radius-lg: 32px;
+
+    /* Shadows - Softer, pinkish */
+    --shadow-sm: 0 1px 3px rgba(167, 139, 250, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(167, 139, 250, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(167, 139, 250, 0.15);
+
+    /* Container */
+    --container-width: 1200px;
+    --header-height: 80px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+/* Utilities */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background-color: white;
+    color: var(--color-secondary);
+    border: 2px solid var(--color-secondary);
+    /* Thicker border for pastel style */
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-secondary-light);
+}
+
+.card {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    border: 1px solid var(--color-border);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+}
+
+/* Grid Layouts */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4 {
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--color-text-main);
+}
+
+h1 {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+h2 {
+    font-size: 2.25rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}

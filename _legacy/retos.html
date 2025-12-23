@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WISE | Retos - Gamificación</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Specific Styles for Retos */
+        .gamification-header {
+            background: linear-gradient(to right, var(--bg-card), var(--bg-main));
+            padding: 20px 0;
+            position: sticky;
+            top: var(--header-height);
+            z-index: 900;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: calc(var(--header-height) + 0px);
+            /* Adjust for fixed header */
+        }
+
+        /* Fix for sticky header + fixed nav overlap */
+        body {
+            padding-top: var(--header-height);
+        }
+
+        .hero {
+            padding-top: 0;
+        }
+
+        /* Reset hero padding since body has it */
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .points-display {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            margin: 0 30px;
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .level-section {
+            margin-bottom: 60px;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .level-badge {
+            background: var(--accent);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .challenge-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .challenge-card.completed {
+            border-color: var(--secondary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .challenge-info h4 {
+            margin-bottom: 5px;
+        }
+
+        .challenge-points {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .challenge-check {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .challenge-card.completed .challenge-check {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .challenge-card.completed .challenge-check::after {
+            content: '✔';
+            color: #fff;
+            font-size: 14px;
+        }
+
+        /* Quiz Styles */
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-align: left;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .quiz-option.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--secondary);
+        }
+
+        .quiz-option.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+        }
+
+        .feedback-msg {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        /* Ranking Table */
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .ranking-table th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ranking-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .ranking-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ranking-input-group input {
+            flex-grow: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+        }
+
+        /* Badges Area */
+        .badges-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .badge-item {
+            background: #000;
+            border: 1px solid #333;
+            padding: 10px 15px;
+            border-radius: 20px;
+            opacity: 0.5;
+            font-size: 0.8rem;
+        }
+
+        .badge-item.unlocked {
+            opacity: 1;
+            border-color: var(--secondary);
+            color: var(--secondary);
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <header style="position: fixed; top: 0; width: 100%;">
+        <div class="container">
+            <a href="index.html" class="logo">WISE <span>Project</span></a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="informe.html">Informe</a></li>
+                    <li><a href="retos.html" class="active">Retos</a></li>
+                    <li><a href="retos.html" class="btn btn-primary">Empieza los retos</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Gamification Status Bar -->
+    <div class="gamification-header">
+        <div class="container stats-bar">
+            <div>
+                <span style="display:block; font-size: 0.8rem; color: var(--text-muted);">Puntos Totales</span>
+                <span class="points-display" id="total-points">0</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div>
+                <button class="btn btn-outline" style="font-size: 0.8rem; padding: 5px 10px;"
+                    onclick="resetProgress()">Reset</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="badges-grid" id="badges-container">
+                <div class="badge-item" id="badge-novato">🌱 Iniciado</div>
+                <div class="badge-item" id="badge-conocedor">🧠 Conocedor</div>
+                <div class="badge-item" id="badge-activista">🌍 Activista</div>
+                <div class="badge-item" id="badge-guardian">🛡️ Guardián</div>
+            </div>
+        </div>
+    </div>
+
+    <section class="section" style="padding-top: 40px;">
+        <div class="container">
+            <h1 class="text-center" style="margin-bottom: 10px;">Reto WISE</h1>
+            <p class="text-center text-secondary" style="margin-bottom: 50px;">Protege el escudo invisible. Completa
+                acciones y sube de nivel.</p>
+
+            <div class="grid-2">
+                <!-- Challenges Column -->
+                <div>
+                    <!-- Nivel 1 -->
+                    <div class="level-section">
+                        <div class="level-header">
+                            <span class="level-badge">Nivel 1</span>
+                            <h3>Aprendiz de Ozono</h3>
+                        </div>
+
+                        <!-- Challenge Items -->
+                        <div class="challenge-card" data-id="c1" data-points="10">
+                            <div class="challenge-info">
+                                <h4>Lee el resumen en Home</h4>
+                                <span class="challenge-points">+10 pts</span>
+                            </div>
+                            <div class="challenge-check"></div>
+                        </div>
+
+                        <div class="challenge-card" data-id="c2" data-points="20">
+                            <div class="challenge-info">
+                                <h4>Busca una etiqueta "Ozone Friendly"</h4>
+                                <p style="font-size: 0.8rem; color: #888;">En desodorantes, espumas, etc.</p>
+                                <span class="challenge-points">+20 pts</span>
+                            </div>
+                            <div class="challenge-check"></div>
+                        </div>
+
+                        <div class="challenge-card" data-id="c3" data-points="15">
+                            <div class="challenge-info">
+                                <h4>Comparte 1 dato curioso</h4>
+                                <button
+                                    onclick="navigator.clipboard.writeText('Sabías que el agujero de ozono se está recuperando gracias al Protocolo de Montreal? #WISEProyect'); alert('Texto copiado!');"
+                                    style="font-size:0.7rem; background: #333; color: white; border:none; padding: 2px 5px; border-radius: 4px; cursor: pointer; margin-top:5px;">Copiar
+                                    dato</button>
+                                <span class="challenge-points">+15 pts</span>
+                            </div>
+                            <div class="challenge-check"></div>
+                        </div>
+                    </div>
+
+                    <!-- Nivel 2 -->
+                    <div class="level-section">
+                        <div class="level-header">
+                            <span class="level-badge" style="background-color: var(--secondary);">Nivel 2</span>
+                            <h3>Explorador Consciente</h3>
+                        </div>
+
+                        <div class="challenge-card" data-id="c4" data-points="30">
+                            <div class="challenge-info">
+                                <h4>Revisa tu aire acondicionado</h4>
+                                <p style="font-size: 0.8rem; color: #888;">Plan de mantenimiento responsable.</p>
+                                <span class="challenge-points">+30 pts</span>
+                            </div>
+                            <div class="challenge-check"></div>
+                        </div>
+
+                        <div class="challenge-card" data-id="c5" data-points="40">
+                            <div class="challenge-info">
+                                <h4>Visita un punto verde (Simulación)</h4>
+                                <span class="challenge-points">+40 pts</span>
+                            </div>
+                            <div class="challenge-check"></div>
+                        </div>
+                    </div>
+
+                    <!-- Nivel 3 -->
+                    <div class="level-section">
+                        <div class="level-header">
+                            <span class="level-badge"
+                                style="background-color: var(--primary); border: 1px solid var(--accent);">Nivel
+                                3</span>
+                            <h3>Guardián del Escudo</h3>
+                        </div>
+
+                        <div class="challenge-card" data-id="c6" data-points="70">
+                            <div class="challenge-info">
+                                <h4>Plan Familiar: Gestión de residuos</h4>
+                                <span class="challenge-points">+70 pts</span>
+                            </div>
+                            <div class="challenge-check"></div>
+                        </div>
+
+                        <div class="challenge-card" data-id="c7" data-points="100">
+                            <div class="challenge-info">
+                                <h4>7 días sin aerosoles antiguos</h4>
+                                <span class="challenge-points">+100 pts</span>
+                            </div>
+                            <div class="challenge-check"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Quiz & Ranking Column -->
+                <div>
+                    <!-- Quiz Section -->
+                    <div style="background: var(--bg-card); padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+                        <h3 style="margin-bottom: 20px;">🧠 Mini Quiz Rápido</h3>
+                        <p style="margin-bottom: 20px; font-size: 0.9rem;">Gana puntos demostrando lo que sabes.</p>
+
+                        <div id="quiz-container">
+                            <!-- Questions will be injected here if we want dynamic, but for now hardcode 1 example visible, others hidden? Or just one block -->
+                            <div class="quiz-question" id="q1">
+                                <p style="font-weight: 600; margin-bottom: 15px;">1. ¿Dónde se encuentra la capa de
+                                    ozono?</p>
+                                <button class="quiz-option"
+                                    onclick="checkAnswer(this, false, 'La Troposfera es donde vivimos nosotros.')">Troposfera</button>
+                                <button class="quiz-option"
+                                    onclick="checkAnswer(this, true, '¡Correcto! Allí filtra los rayos UV.')">Estratosfera</button>
+                                <button class="quiz-option"
+                                    onclick="checkAnswer(this, false, 'Demasiado lejos.')">Mesosfera</button>
+                                <div class="feedback-msg"></div>
+                            </div>
+
+                            <!-- More questions can be added similarly with unique phrasing -->
+                        </div>
+                    </div>
+
+                    <!-- Ranking Section -->
+                    <div style="background: var(--bg-card); padding: 30px; border-radius: 12px;">
+                        <h3 style="margin-bottom: 20px;">🏆 Top Guardianes</h3>
+
+                        <div class="ranking-input-group">
+                            <input type="text" id="player-name" placeholder="Tu nombre...">
+                            <button class="btn btn-primary" onclick="saveScore()">Guardar</button>
+                        </div>
+
+                        <table class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nombre</th>
+                                    <th>Puntos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ranking-body">
+                                <!-- JS will populate this -->
+                                <tr>
+                                    <td colspan="3" class="text-center">Cargando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h4>WISE Project</h4>
+                    <p>Proyecto 2025/2026</p>
+                    <p>Autoras: Yasmina Tamouh y Valeria Linares</p>
+                </div>
+                <!-- Links -->
+            </div>
+            <div class="footer-bottom">
+                <p>Datos basados en estimaciones históricas (NASA).</p>
+                <p>Última actualización: <span id="last-update-date"></span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

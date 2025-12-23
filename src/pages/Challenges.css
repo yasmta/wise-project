@@ -1,0 +1,114 @@
+.challenges-header {
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: white;
+    border: 2px solid var(--color-border);
+    padding: 0.5rem 1.5rem;
+    border-radius: 999px;
+    /* Pill shape */
+    color: var(--color-text-muted);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.filter-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+/* Card Styles */
+.challenge-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+}
+
+.tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    text-transform: capitalize;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Updated Tag Colors to Pastel Palette */
+.tag-hogar {
+    background: #fce7f3;
+    color: #be185d;
+}
+
+/* Pink theme */
+.tag-transporte {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+/* Violet theme */
+.tag-consumo {
+    background: #d1fae5;
+    color: #047857;
+}
+
+/* Keep Green but pastel mint */
+
+.points {
+    font-weight: 700;
+    color: var(--color-secondary);
+    /* Pink points */
+}
+
+.challenge-card h3 {
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-text-main);
+}
+
+.challenge-card p {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-md);
+    flex-grow: 1;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.difficulty {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
