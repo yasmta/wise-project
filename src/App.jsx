@@ -9,6 +9,7 @@ import Information from './pages/Information';
 import Challenges from './pages/Challenges';
 import Ranking from './pages/Ranking';
 import Community from './pages/Community';
+import Profile from './pages/Profile';
 
 function App() {
     return (
@@ -23,6 +24,7 @@ function App() {
                             <Route path="/retos" element={<Challenges />} />
                             <Route path="/ranking" element={<Ranking />} />
                             <Route path="/comunidad" element={<Community />} />
+                            <Route path="/profile/:username" element={<Profile />} />
                         </Routes>
                     </main>
                     <Footer />

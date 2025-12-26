@@ -1,7 +1,22 @@
 /* Pastel Astron Home */
 .home-page {
-    /* No dark background overrides here, uses global body bg */
     overflow-x: hidden;
+    padding-top: 80px;
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 4rem;
+}
+
+.ambient-glow {
+    position: fixed;
+    top: 20%;
+    left: 10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: pulse-slow 8s ease-in-out infinite;
 }
 
 /* 1. Hero Section */
@@ -10,302 +25,617 @@
     align-items: center;
     justify-content: space-between;
     min-height: 85vh;
-    padding-top: 2rem;
     position: relative;
+    padding-block: 2rem 6rem;
+    z-index: 1;
 }
 
 .hero-text-side {
     flex: 1;
-    padding-right: 4rem;
+    padding-right: 2rem;
+    z-index: 2;
 }
 
 .overline {
     font-size: 0.9rem;
-    letter-spacing: 0.2rem;
+    letter-spacing: 0.25rem;
     text-transform: uppercase;
-    color: var(--color-text-muted);
-    font-weight: 700;
-    margin-bottom: 1rem;
+    color: var(--color-primary);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
     display: block;
+    opacity: 0.9;
 }
 
 .astron-hero h1 {
-    font-size: 4.5rem;
-    line-height: 1.1;
+    font-size: 5rem;
+    line-height: 1.05;
     margin-bottom: 2rem;
-    background: linear-gradient(to right, var(--color-primary-dark), var(--color-secondary));
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 15px rgba(167, 139, 250, 0.25));
 }
 
 .astron-hero p {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     color: var(--color-text-muted);
-    margin-bottom: 2rem;
-    max-width: 450px;
-    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    line-height: 1.7;
 }
 
-.hero-breadcrumbs {
-    font-size: 0.9rem;
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.hero-stats-mini {
+    display: flex;
+    gap: 3rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 1.5rem;
+}
+
+.mini-stat strong {
+    display: block;
+    font-size: 1.8rem;
+    color: var(--color-text-main);
+    line-height: 1;
+}
+
+.mini-stat span {
+    font-size: 0.85rem;
     color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.hero-breadcrumbs .active {
-    color: var(--color-primary);
-    font-weight: 600;
-    margin-left: 0.5rem;
-}
-
-/* Visual Side: Pastel "Planet" */
+/* Visual Side */
 .hero-visual-side {
     flex: 1;
     position: relative;
-    height: 500px;
+    height: 600px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* The Planet */
 .planet-circle-pastel {
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary-light));
+    width: 450px;
+    height: 450px;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.4), rgba(244, 114, 182, 0.4));
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     border-radius: 50%;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 20px 50px rgba(167, 139, 250, 0.2);
+    box-shadow:
+        0 20px 60px rgba(167, 139, 250, 0.2),
+        inset 0 0 40px rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    animation: float-rotate 12s ease-in-out infinite;
 }
 
 .planet-inner {
-    width: 320px;
-    height: 320px;
-    background: white;
+    width: 340px;
+    height: 340px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .planet-inner .big-stat {
-    font-size: 4rem;
+    font-size: 5rem;
     font-weight: 800;
     color: var(--color-primary);
     line-height: 1;
+    letter-spacing: -2px;
 }
 
 .planet-inner .stat-desc {
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.2em;
     color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 /* Floating Cards */
 .floating-card {
     position: absolute;
-    background: white;
-    padding: 1rem 1.5rem;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    padding: 1rem 1.8rem;
+    border-radius: var(--radius-full);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    font-weight: 600;
+    gap: 1rem;
+    font-weight: 700;
     color: var(--color-text-main);
+    border: 1px solid rgba(255, 255, 255, 0.7);
     animation: float 6s ease-in-out infinite;
+    z-index: 5;
 }
 
 .floating-card svg {
     color: var(--color-secondary);
-    font-size: 1.2rem;
+    font-size: 1.4rem;
 }
 
-.floating-card.c1 {
+.c1 {
     top: 10%;
-    right: 10%;
+    right: 5%;
     animation-delay: 0s;
 }
 
-.floating-card.c2 {
-    bottom: 15%;
-    left: 10%;
-    animation-delay: 3s;
+.c2 {
+    bottom: 20%;
+    left: 0%;
+    animation-delay: 2s;
 }
 
-/* 2. Split Section */
+.c3 {
+    top: 60%;
+    right: -5%;
+    animation-delay: 4s;
+}
+
+/* 2. Split Section / Collage */
 .astron-section {
-    padding: 6rem 0;
+    padding: 8rem 0;
+    position: relative;
+    z-index: 1;
 }
 
 .split-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    gap: 6rem;
     align-items: center;
 }
 
-.image-block-pastel {
-    width: 100%;
-    height: 500px;
-    background: linear-gradient(45deg, var(--color-secondary), var(--color-primary));
-    border-radius: var(--radius-lg) 0 var(--radius-lg) 0;
+/* Glass Collage Replacement for Empty Block */
+.glass-collage {
     position: relative;
-    overflow: hidden;
+    height: 500px;
+    width: 100%;
 }
 
-.image-block-pastel::after {
-    content: '';
+.collage-card {
     position: absolute;
-    inset: 0;
-    /* Simulate an image overlay or use a real image */
-    background: url('https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=2669&auto=format&fit=crop');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.8;
-    mix-blend-mode: overlay;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-glass);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
 }
 
-.section-subtitle {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--color-secondary);
-    font-weight: 700;
-    display: block;
+.collage-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.collage-card.main {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 280px;
+    z-index: 2;
+    border-radius: 50%;
+    border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.collage-card.sub1 {
+    top: 10%;
+    left: 10%;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-full);
+}
+
+.collage-card.sub2 {
+    bottom: 15%;
+    right: 5%;
+    padding: 1.5rem 2.5rem;
+    border-radius: var(--radius-lg);
+}
+
+.collage-icon {
+    font-size: 4rem;
+    color: var(--color-primary);
     margin-bottom: 1rem;
 }
 
+/* Text Content */
+.section-subtitle {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-secondary);
+    font-weight: 800;
+    display: block;
+    margin-bottom: 1.5rem;
+}
+
 .split-content h2 {
-    font-size: 3rem;
+    font-size: 3.5rem;
+    line-height: 1.1;
     margin-bottom: 2rem;
     color: var(--color-text-main);
 }
 
-.split-content p {
-    color: var(--color-text-muted);
-    margin-bottom: 2rem;
-}
-
-.feature-list {
-    margin-bottom: 3rem;
+.feature-grid {
+    margin-top: 3rem;
     display: grid;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 .feature-item {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     align-items: flex-start;
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: white;
+    transform: translateX(10px);
+    box-shadow: var(--shadow-soft);
 }
 
 .f-icon {
     background: var(--color-primary-light);
-    color: var(--color-primary);
-    width: 40px;
-    height: 40px;
+    color: var(--color-primary-dark);
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    flex-shrink: 0;
 }
 
-.f-text strong {
-    display: block;
-    color: var(--color-text-main);
+/* 3. Stats Section REDESIGNED: Floating Grid */
+.stats-section-container {
+    padding: 6rem 0;
+    margin-top: 2rem;
 }
 
-.f-text span {
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-}
-
-.btn-pill {
-    border-radius: 50px;
-    padding: 1rem 2.5rem;
-    display: inline-flex;
-    gap: 0.5rem;
-}
-
-/* 3. Stats Section */
-.astron-stats {
-    background: var(--color-surface);
-    padding: 4rem 0;
-    border-top: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-}
-
-.stats-grid {
+.stats-floating-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
+}
+
+.stat-card-glass {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: var(--radius-md);
+    padding: 3rem 2rem;
     text-align: center;
+    box-shadow:
+        0 15px 35px -5px rgba(167, 139, 250, 0.1),
+        inset 0 0 20px rgba(255, 255, 255, 0.5);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card-glass:hover {
+    transform: translateY(-15px) scale(1.03);
+    background: white;
+    box-shadow: 0 25px 50px -10px rgba(167, 139, 250, 0.25);
+    border-color: var(--color-primary-light);
+}
+
+.stat-icon-bg {
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+}
+
+.stat-icon-bg.purple {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.stat-icon-bg.pink {
+    background: #fce7f3;
+    color: #db2777;
+}
+
+.stat-icon-bg.blue {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.stat-icon-bg.green {
+    background: #d1fae5;
+    color: #059669;
 }
 
 .stat-number {
     display: block;
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 800;
-    color: var(--color-primary);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
+    line-height: 1;
 }
 
 .stat-label {
+    font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
     color: var(--color-text-muted);
+    font-size: 0.9rem;
 }
 
-/* 4. CTA */
+/* 4. CTA Section REDESIGNED: Portal */
 .astron-cta {
-    padding: 6rem 0;
+    padding: 8rem 0 6rem;
+}
+
+.cta-portal-glass {
+    position: relative;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    /* border: 1px solid rgba(255, 255, 255, 0.4); Removed to fix double border */
+    border-radius: 40px;
+    padding: 6rem 4rem;
     text-align: center;
-    background: linear-gradient(180deg, transparent 0%, var(--color-primary-light) 100%);
+    overflow: hidden;
+    /* Create a gradient border effect */
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.05),
+        inset 0 0 100px rgba(255, 255, 255, 0.2);
 }
 
-.cta-content h2 {
+.cta-portal-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 40px;
+    padding: 2px;
+    background: var(--gradient-primary);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 1;
+    /* Solid contour */
+}
+
+.portal-content {
+    position: relative;
+    z-index: 2;
+}
+
+.icon-crown {
     font-size: 3rem;
-    margin-bottom: 1rem;
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.4));
+    animation: float 4s ease-in-out infinite;
 }
 
-.cta-content p {
-    font-size: 1.2rem;
-    color: var(--color-text-muted);
-    margin-bottom: 2rem;
+.portal-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%);
+    z-index: 1;
+    pointer-events: none;
 }
+
+.portal-circle {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fbcfe8 0%, #ddd6fe 100%);
+    opacity: 0.2;
+    filter: blur(30px);
+}
+
+.cta-portal-glass h2 {
+    font-size: 3.5rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+}
+
+.cta-portal-glass p {
+    font-size: 1.4rem;
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+}
+
+.btn-xl {
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    display: inline-flex;
+    gap: 1rem;
+}
+
+/* Animations */
+.pop-in {
+    opacity: 0;
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes float-rotate {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(3deg);
+    }
+}
+
+@keyframes pulse-slow {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+.shine-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.shine-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-20deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+
+    20% {
+        left: 200%;
+    }
+
+    100% {
+        left: 200%;
+    }
+}
+
+.pulse-hover:hover {
+    animation: pulse-btn 1s infinite;
+}
+
+@keyframes pulse-btn {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
 
 /* Mobile */
 @media (max-width: 900px) {
     .astron-hero {
         flex-direction: column-reverse;
-        text-align: center;
         padding-top: 2rem;
+        text-align: center;
     }
 
     .hero-text-side {
         padding-right: 0;
     }
 
-    .split-layout {
-        grid-template-columns: 1fr;
+    .hero-actions {
+        justify-content: center;
     }
 
-    .stats-grid {
-        grid-template-columns: 1fr 1fr;
+    .hero-stats-mini {
+        justify-content: center;
     }
 
     .astron-hero h1 {
-        font-size: 3rem;
+        font-size: 3.5rem;
     }
 
-    .hero-visual-side {
-        height: 400px;
+    .hero-visual-side,
+    .glass-collage {
         width: 100%;
+        height: 400px;
     }
 
     .planet-circle-pastel {
@@ -314,7 +644,49 @@
     }
 
     .planet-inner {
-        width: 240px;
-        height: 240px;
+        width: 220px;
+        height: 220px;
     }
+
+    .split-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .glass-collage {
+        height: 400px;
+    }
+
+    .collage-card.main {
+        width: 200px;
+        height: 200px;
+    }
+
+    .collage-icon {
+        font-size: 3rem;
+    }
+
+    .stats-floating-grid {
+        grid-template-columns: 1fr;
+        /* Stack cards on mobile */
+    }
+
+    .cta-portal-glass {
+        padding: 3rem 1.5rem;
+    }
+
+    .cta-portal-glass h2 {
+        font-size: 2rem;
+    }
+}
+
+/* RESTORE HOME BUTTONS */
+.astron-hero .btn {
+    border-radius: var(--radius-md) !important;
+    padding: 1rem 2.5rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.astron-cta .btn {
+    border-radius: var(--radius-md) !important;
 }

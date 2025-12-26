@@ -1,58 +1,76 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* Branding Colors - Pastel Lilac & Pink Theme */
+    /* --- Modern Pastel Premium Theme --- */
+
+    /* Base Colors */
+    --color-bg: #efe6fd;
+    /* Darker Pastel Lilac (User Request) */
+
+    /* Darker/Richer */
+    /* Very soft pink/white - Warm & Clean */
+    --color-surface: rgba(255, 255, 255, 0.7);
+    /* Glassmorphism base */
+    --color-surface-solid: #ffffff;
+
+    /* Primary Brand Colors */
     --color-primary: #a78bfa;
-    /* Pastel Lilac (Violet 400) - Main Brand */
-    --color-primary-light: #ede9fe;
-    /* Very Light Lilac (Violet 50) */
+    /* Soft Violet */
     --color-primary-dark: #7c3aed;
-    /* Deep Violet for text contrast */
+    /* Deep Violet (Hover) */
+    --color-primary-light: #ddd6fe;
+    /* Very light violet */
 
     --color-secondary: #f472b6;
-    /* Pastel Pink (Pink 400) - Highlights/Action */
+    /* Soft Pink */
+    --color-secondary-dark: #db2777;
+    /* Deep Pink */
     --color-secondary-light: #fce7f3;
-    /* Very Light Pink (Pink 100) */
+    /* Very light pink */
 
-    --color-accent: #c084fc;
-    /* Another Purple tone */
-    --color-accent-light: #f3e8ff;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
 
-    /* Neutral Colors */
-    --color-bg: #fff0f5;
-    /* Lavender Blush / Very soft pinkish white background */
-    --color-surface: #ffffff;
-    --color-text-main: #4c1d95;
-    /* Deep Violet (Violet 950) - Softer than black, fits theme */
-    --color-text-muted: #86198f;
-    /* Magenta 800 - or Slate with purplish tint */
-    /* Actually let's keep text readable but themed */
+    /* Text Colors */
+    --color-text-main: #4a1d96;
+    /* Deep Purple/Blue - Readable but themed */
     --color-text-muted: #6b7280;
-    /* Gray 500 is safer for reading, maybe warm gray */
+    /* Neutral Gray */
+    --color-text-light: #ffffff;
 
-    --color-border: #e9d5ff;
-    /* Light Purple border */
+    /* Borders & Shadows */
+    --color-border: rgba(167, 139, 250, 0.2);
+    --shadow-soft: 0 4px 20px -2px rgba(167, 139, 250, 0.15);
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+    /* Radii */
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 30px;
+    --radius-full: 9999px;
 
     /* Spacing */
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
     --spacing-md: 2rem;
     --spacing-lg: 4rem;
-    --spacing-xl: 8rem;
-
-    /* Radius - More rounded for playful pastel look */
-    --radius-sm: 12px;
-    --radius-md: 24px;
-    --radius-lg: 32px;
-
-    /* Shadows - Softer, pinkish */
-    --shadow-sm: 0 1px 3px rgba(167, 139, 250, 0.1);
-    --shadow-md: 0 4px 6px -1px rgba(167, 139, 250, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(167, 139, 250, 0.15);
-
-    /* Container */
     --container-width: 1200px;
-    --header-height: 80px;
+}
+
+/* Footer */
+.site-footer {
+    padding: 2rem 0;
+    margin-top: auto;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--color-text-muted);
+}
+
+.site-footer .copyright {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    opacity: 0.8;
 }
 
 * {
@@ -61,91 +79,155 @@
     padding: 0;
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
 body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--color-bg);
     color: var(--color-text-main);
+    /* Dynamic Eco Background - More Visible */
+    background-image:
+        radial-gradient(circle at 10% 40%, rgba(167, 139, 250, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 60%, rgba(196, 181, 253, 0.15) 0%, transparent 40%);
+    background-attachment: fixed;
+    min-height: 100vh;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    padding-top: 80px;
+    position: relative;
+    overflow-x: hidden;
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
-    transition: color 0.2s;
+/* Floating Eco Particles Effect - Intensified */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    /* More distinct particles */
+    background-image:
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.9), transparent 3px),
+        radial-gradient(circle at 20% 80%, rgba(167, 139, 250, 0.4), transparent 4px),
+        radial-gradient(circle at 80% 20%, rgba(196, 181, 253, 0.4), transparent 3px);
+    background-size: 120px 120px, 150px 150px, 90px 90px;
+    /* Larger spread */
+    animation: floatingParticles 40s linear infinite;
+    /* Faster */
+    opacity: 0.8;
+    /* More visible */
 }
 
-ul {
-    list-style: none;
+/* Subtle detailed glow moving - Intensified */
+body::after {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    /* Lilac/Pink glow instead of Green/Blue */
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.08) 0%, transparent 40%);
+    z-index: -2;
+    animation: ecoBreath 10s ease-in-out infinite alternate;
+    /* Faster breath */
+    pointer-events: none;
 }
 
-button {
-    font-family: inherit;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
+@keyframes floatingParticles {
+    0% {
+        background-position: 0 0, 0 0;
+    }
+
+    100% {
+        background-position: 0 600px, 0 1000px;
+    }
 }
 
-/* Utilities */
+@keyframes ecoBreath {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(-20px, 20px) scale(1.1);
+    }
+}
+
+/* Glass Cards */
+.card,
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: var(--shadow-soft);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.card:hover,
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px -4px rgba(167, 139, 250, 0.25);
+    background: rgba(255, 255, 255, 0.85);
+    border-color: var(--color-primary);
+}
+
+/* Base Components */
 .container {
     max-width: var(--container-width);
     margin: 0 auto;
     padding: 0 var(--spacing-sm);
 }
 
+/* Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-sm);
+    padding: 0.8rem 1.8rem;
+    border-radius: var(--radius-full);
     font-weight: 600;
     font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    border: none;
+    letter-spacing: 0.02em;
+    text-decoration: none;
 }
 
 .btn-primary {
-    background-color: var(--color-primary);
+    background: var(--gradient-primary);
     color: white;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 15px rgba(167, 139, 250, 0.4);
 }
 
 .btn-primary:hover {
-    background-color: var(--color-primary-dark);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 8px 25px rgba(167, 139, 250, 0.5);
+    filter: brightness(1.1);
 }
 
 .btn-secondary {
-    background-color: white;
-    color: var(--color-secondary);
-    border: 2px solid var(--color-secondary);
-    /* Thicker border for pastel style */
+    background: white;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary-light);
 }
 
 .btn-secondary:hover {
-    background-color: var(--color-secondary-light);
-}
-
-.card {
-    background: var(--color-surface);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    border: 1px solid var(--color-border);
-}
-
-.card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
     border-color: var(--color-primary);
-}
-
-/* Grid Layouts */
-.grid-3 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-md);
+    background: var(--color-primary-light);
+    transform: translateY(-2px);
 }
 
 /* Typography */
@@ -153,39 +235,34 @@ h1,
 h2,
 h3,
 h4 {
-    line-height: 1.2;
     font-weight: 700;
+    letter-spacing: -0.02em;
     color: var(--color-text-main);
 }
 
 h1 {
-    font-size: 3rem;
+    font-size: 3.5rem;
+    line-height: 1.1;
     margin-bottom: var(--spacing-md);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
 }
 
 h2 {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
     margin-bottom: var(--spacing-sm);
 }
 
 h3 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     margin-bottom: var(--spacing-xs);
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2.5rem;
-    }
-
-    h2 {
-        font-size: 1.75rem;
-    }
-}
-
 /* Animations */
-@keyframes fadeIn {
+@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -197,6 +274,44 @@ h3 {
     }
 }
 
-.fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
+.fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+/* Form Elements */
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(4px);
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--color-text-main);
+    transition: all 0.3s ease;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.15);
+    background: white;
 }

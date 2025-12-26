@@ -34,6 +34,23 @@ export default function Header() {
                 <div className="container header-container">
                     <Link to="/" className="logo">WISE</Link>
 
+                    {/* Desktop Nav - Centered */}
+                    <nav className={`main-nav ${isMenuOpen ? 'open' : ''}`}>
+                        <ul>
+                            {navLinks.map((link) => (
+                                <li key={link.path}>
+                                    <NavLink
+                                        to={link.path}
+                                        className={({ isActive }) => isActive ? 'active' : ''}
+                                        onClick={closeMenu}
+                                    >
+                                        {link.name}
+                                    </NavLink>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+
                     <div className="header-controls">
                         {isAuthenticated ? (
                             <div className="user-info">
@@ -68,24 +85,10 @@ export default function Header() {
                             <span className={`hamburger ${isMenuOpen ? 'open' : ''}`}></span>
                         </button>
                     </div>
-
-                    <nav className={`main-nav ${isMenuOpen ? 'open' : ''}`}>
-                        <ul>
-                            {navLinks.map((link) => (
-                                <li key={link.path}>
-                                    <NavLink
-                                        to={link.path}
-                                        className={({ isActive }) => isActive ? 'active' : ''}
-                                        onClick={closeMenu}
-                                    >
-                                        {link.name}
-                                    </NavLink>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
                 </div>
             </header>
+
+            {/* ...modals... */}
 
             {showLogin && (
                 <LoginModal

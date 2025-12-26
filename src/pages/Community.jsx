@@ -1,230 +1,380 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { FaHeart, FaComment, FaPaperPlane, FaUserCircle, FaTrash, FaCheckCircle, FaLeaf, FaTint } from 'react-icons/fa';
-import './Community.css';
+import { Link } from 'react-router-dom';
+import {
+    FaHome, FaUserFriends, FaCommentDots, FaUser, FaGlobeAmericas,
+    FaHeart, FaRegHeart, FaRegComment, FaPaperPlane, FaSearch, FaHashtag, FaFire
+} from 'react-icons/fa';
+import './SocialHub.css'; // V4 Styles
 
-export default function Community() {
-    const { t } = useLanguage();
-    const { user, isAuthenticated } = useAuth();
+// === SUB-COMPONENTS ===
 
-    // Mock initial posts
-    const [posts, setPosts] = useState([
-        {
-            id: 1,
-            author: 'EcoWarrior',
-            handle: '@eco_warrior',
-            avatarColor: '#bfdbfe', // blue-200
-            time: '2h',
-            content: 'Just discovered that the hole in the ozone layer is shrinking! 🌍 Small actions really do add up. #OzoneRecovery #ProjectWise',
-            likes: 45,
-            replies: 12,
-            isUserPost: false
-        },
-        {
-            id: 2,
-            author: 'SarahGreen',
-            handle: '@sarah_g',
-            avatarColor: '#bbf7d0', // green-200
-            time: '4h',
-            content: 'Does anyone have tips for reducing plastic use in the kitchen? Trying to be more sustainable! 🌱',
-            likes: 12,
-            replies: 8,
-            isUserPost: false
-        },
-        {
-            id: 3,
-            author: 'ProjectWise Official',
-            handle: '@wise_team',
-            avatarColor: '#c084fc', // purple
-            isVerified: true,
-            time: '6h',
-            content: 'New challenge alert: "Zero Waste Weekend". Are you in? Check the Challenges tab! 🚀',
-            likes: 156,
-            replies: 42,
-            isUserPost: false
+const PostCard = ({ post, user }) => {
+    const [likes, setLikes] = useState(post.likes || 0);
+    const [isLiked, setIsLiked] = useState(false); // Simplified: Assume false on load for now, distinct endpoint needed for 'check like'
+    const [showComments, setShowComments] = useState(false);
+    const [comments, setComments] = useState([]); // Fetch if showing
+    const [commentContent, setCommentContent] = useState('');
+    const [loadingComments, setLoadingComments] = useState(false);
+
+    // Fetch comments when toggled
+    useEffect(() => {
+        if (showComments && comments.length === 0) {
+            setLoadingComments(true);
+            fetch(`http://localhost:3001/api/community/posts?parentId=${post.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    setComments(data);
+                    setLoadingComments(false);
+                });
         }
-    ]);
+    }, [showComments, post.id]);
 
-    const [newPostContent, setNewPostContent] = useState('');
+    const handleLike = async () => {
+        // Optimistic
+        setIsLiked(!isLiked);
+        setLikes(prev => isLiked ? prev - 1 : prev + 1);
 
-    const handlePostSubmit = (e) => {
+        try {
+            const token = localStorage.getItem('token');
+            await fetch(`http://localhost:3001/api/community/posts/${post.id}/like`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (e) { console.error(e); }
+    };
+
+    const handleComment = async (e) => {
         e.preventDefault();
-        if (!newPostContent.trim()) return;
+        if (!commentContent.trim()) return;
 
-        const newPost = {
-            id: Date.now(),
-            author: user?.username || 'Yumi',
-            handle: `@${user?.username || 'yumi'}`,
-            avatarColor: '#f9a8d4', // pink-300
-            content: newPostContent,
-            likes: 0,
-            replies: 0,
-            time: 'Now',
-            isUserPost: true
-        };
-
-        setPosts([newPost, ...posts]);
-        setNewPostContent('');
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:3001/api/community/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ content: commentContent, parentId: post.id })
+        });
+        const newCo = await res.json();
+        setComments([newCo, ...comments]); // Prepend logic
+        setCommentContent('');
     };
-
-    const handleLike = (id) => {
-        setPosts(posts.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
-    };
-
-    const handleDelete = (id) => {
-        if (window.confirm(t('comm_confirm_delete') || 'Delete this post?')) {
-            setPosts(posts.filter(p => p.id !== id));
-        }
-    };
-
-    if (!isAuthenticated) return (
-        <div className="container center-message" style={{ padding: '5rem', textAlign: 'center' }}>
-            <h2>Log in to join the community</h2>
-        </div>
-    );
 
     return (
-        <div className="apps-container fade-in">
-            <div className="community-layout">
+        <div className="feed-card">
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: post.avatarColor || '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.2rem' }}>
+                    {post.author[0]}
+                </div>
+                <div>
+                    <div style={{ fontWeight: '700' }}>
+                        <Link to={`/profile/${post.author}`}>{post.author}</Link>
+                    </div>
+                    <div className="post-meta">{new Date(post.created_at).toLocaleString()}</div>
+                </div>
+            </div>
 
-                {/* Left Sidebar */}
-                <aside className="sidebar-left">
-                    {/* User Profile Card */}
-                    <div className="dashboard-card profile-card">
-                        <div className="profile-header-gradient"></div>
-                        <div className="profile-info">
-                            <div className="profile-avatar">
-                                <FaUserCircle />
-                            </div>
-                            <h3>{user?.username || 'Yumi'}</h3>
-                            <span className="profile-subtitle">Eco-Warrior Level 5</span>
+            <div className="post-content">
+                {post.content}
+            </div>
 
-                            <div className="profile-stats-row">
-                                <div className="p-stat">
-                                    <span className="p-label">Points</span>
-                                    <span className="p-val highlight">200</span>
+            <div className="post-actions">
+                <button className={`action-btn ${isLiked ? 'active' : ''}`} onClick={handleLike}>
+                    {isLiked ? <FaHeart /> : <FaRegHeart />} {likes}
+                </button>
+                <button className="action-btn" onClick={() => setShowComments(!showComments)}>
+                    <FaRegComment /> {comments.length || post.replies || 0} Comentarios
+                </button>
+            </div>
+
+            {showComments && (
+                <div className="comments-section">
+                    <form className="comment-input-row" onSubmit={handleComment}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem' }}>
+                            {user?.username?.[0]}
+                        </div>
+                        <input
+                            className="comment-input"
+                            placeholder="Escribe una respuesta..."
+                            value={commentContent}
+                            onChange={e => setCommentContent(e.target.value)}
+                        />
+                    </form>
+
+                    <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {loadingComments ? <div style={{ opacity: 0.5, fontSize: '0.9rem' }}>Cargando...</div> : comments.map(c => (
+                            <div key={c.id} className="comment-item">
+                                <div style={{ width: 28, height: 28, borderRadius: '50%', background: c.avatarColor || '#64748b', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem' }}>
+                                    {c.author[0]}
                                 </div>
-                                <div className="p-stat">
-                                    <span className="p-label">Impact</span>
-                                    <span className="p-val success">High</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Trending Topics */}
-                    <div className="dashboard-card trending-card">
-                        <h4>📈 Trending Topics</h4>
-                        <div className="trend-row">
-                            <span className="trend-tag">#ProjectWise</span>
-                            <span className="trend-count">2.4k</span>
-                        </div>
-                        <div className="trend-row">
-                            <span className="trend-tag">#ZeroWaste</span>
-                            <span className="trend-count">1.8k</span>
-                        </div>
-                        <div className="trend-row">
-                            <span className="trend-tag">#SustainableLiving</span>
-                            <span className="trend-count">950</span>
-                        </div>
-                    </div>
-                </aside>
-
-                {/* Main Feed */}
-                <main className="feed-center">
-                    {/* Home Header */}
-                    <div className="page-header">
-                        <h2>Home</h2>
-                    </div>
-
-                    {/* Compose Box */}
-                    <div className="dashboard-card compose-card">
-                        <div className="compose-row">
-                            <div className="c-avatar" style={{ background: '#f9a8d4' }}>
-                                <FaUserCircle />
-                            </div>
-                            <form onSubmit={handlePostSubmit} className="c-form">
-                                <textarea
-                                    placeholder="What's happening in the eco-world?"
-                                    value={newPostContent}
-                                    onChange={(e) => setNewPostContent(e.target.value)}
-                                />
-                                <div className="c-actions">
-                                    <div className="c-icons"></div>
-                                    <button type="submit" className="btn-send-icon">
-                                        <FaPaperPlane />
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    {/* Posts Feed */}
-                    <div className="posts-stream">
-                        {posts.map(post => (
-                            <div key={post.id} className="dashboard-card post-item">
-                                <div className="post-header">
-                                    <div className="post-user-info">
-                                        <div className="post-avatar" style={{ background: post.avatarColor || '#ddd' }}>
-                                            {post.author[0]}
-                                        </div>
-                                        <div className="post-user-text">
-                                            <span className="p-name">
-                                                {post.author}
-                                                {post.isVerified && <FaCheckCircle className="verified-badge" />}
-                                            </span>
-                                            <span className="p-handle">{post.handle} · {post.time}</span>
-                                        </div>
+                                <div>
+                                    <div className="comment-author">
+                                        <Link to={`/profile/${c.author}`}>
+                                            {c.author}
+                                        </Link>
                                     </div>
-                                    {post.isUserPost && (
-                                        <button className="del-btn" onClick={() => handleDelete(post.id)}>
-                                            <FaTrash />
-                                        </button>
-                                    )}
-                                </div>
-                                <p className="post-body">
-                                    {post.content}
-                                </p>
-                                <div className="post-actions-row">
-                                    <button className="act-btn"><FaComment /> {post.replies}</button>
-                                    <button className="act-btn" onClick={() => handleLike(post.id)}>
-                                        <FaHeart /> {post.likes}
-                                    </button>
+                                    <div className="comment-text">{c.content}</div>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </main>
+                </div>
+            )}
+        </div>
+    );
+};
 
-                {/* Right Sidebar */}
-                <aside className="sidebar-right">
-                    <div className="dashboard-card follow-card">
-                        <h4>Who to follow</h4>
-                        <div className="follow-item">
-                            <div className="f-avatar" style={{ background: '#fbbf24' }}><FaLeaf /></div>
-                            <div className="f-info">
-                                <strong>GreenLife</strong>
-                                <span>@greenlife_</span>
-                            </div>
-                            <button className="btn-follow">+</button>
-                        </div>
-                        <div className="follow-item">
-                            <div className="f-avatar" style={{ background: '#6ee7b7' }}><FaTint /></div>
-                            <div className="f-info">
-                                <strong>OceanClean</strong>
-                                <span>@oceanclean</span>
-                            </div>
-                            <button className="btn-follow">+</button>
-                        </div>
-                        <div className="show-more">Show more</div>
+const FeedView = ({ user }) => {
+    const [posts, setPosts] = useState([]);
+    const [content, setContent] = useState('');
+
+    const fetchAll = () => {
+        fetch('http://localhost:3001/api/community/posts')
+            .then(res => res.json())
+            .then(data => setPosts(Array.isArray(data) ? data : [])); // Logic to filter out comments (parent_id != null) ideally handled by backend or filter here
+    };
+
+    useEffect(() => {
+        fetchAll();
+    }, []);
+
+    const handlePost = async (e) => {
+        e.preventDefault();
+        if (!content.trim()) return;
+        const token = localStorage.getItem('token');
+        await fetch('http://localhost:3001/api/community/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ content })
+        });
+        setContent('');
+        fetchAll();
+    };
+
+    const rootPosts = posts.filter(p => !p.parent_id);
+
+    return (
+        <div className="view-container fade-in">
+            <div className="view-header">
+                <h2>Inicio</h2>
+            </div>
+
+            <div className="feed-card">
+                <form onSubmit={handlePost}>
+                    <div className="composer-area">
+                        <textarea
+                            placeholder="¿Qué estás pensando?"
+                            value={content}
+                            onChange={e => setContent(e.target.value)}
+                        />
                     </div>
-                </aside>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button className="btn-main" style={{ borderRadius: '20px', padding: '0.6rem 1.5rem' }}>
+                            Publicar
+                        </button>
+                    </div>
+                </form>
+            </div>
 
+            <div className="stream">
+                {rootPosts.map(post => (
+                    <PostCard key={post.id} post={post} user={user} />
+                ))}
             </div>
         </div>
     );
+};
+
+const ChatView = ({ user }) => {
+    const [conversations, setConversations] = useState([]);
+    const [activeChat, setActiveChat] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
+    const [loading, setLoading] = useState(true);
+    const chatEndRef = useRef(null);
+
+    const fetchConvos = () => {
+        const token = localStorage.getItem('token');
+        fetch('http://localhost:3001/api/social/conversations', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed");
+                return res.json();
+            })
+            .then(data => {
+                setConversations(Array.isArray(data) ? data : []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    };
+
+    useEffect(() => {
+        fetchConvos(); // Initial fetch
+        const interval = setInterval(fetchConvos, 3000); // Poll every 3s
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        if (activeChat) {
+            const token = localStorage.getItem('token');
+            fetch(`http://localhost:3001/api/social/messages/${activeChat.id}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => res.json())
+                .then(setMessages);
+        }
+    }, [activeChat]);
+
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    const send = async (e) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:3001/api/social/messages', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ toUserId: activeChat.id, content: input })
+        });
+        const msg = await res.json();
+        setMessages([...messages, { ...msg, sender_id: user.id }]);
+        setInput('');
+        fetchConvos(); // Immediate refresh
+    };
+
+    return (
+        <div className="view-container fade-in" style={{ height: '100%' }}>
+            <div className="view-header">
+                <h2>Mensajes</h2>
+            </div>
+            <div className="chat-layout-glass">
+                <div className="chat-list-glass">
+                    <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0', fontWeight: 'bold', color: '#334155' }}>Chats</div>
+                    {loading && <div style={{ padding: '1rem', color: '#64748b' }}>Cargando...</div>}
+                    {!loading && conversations.length === 0 && (
+                        <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>No chats yet.</div>
+                    )}
+                    {conversations.map(c => (
+                        <div key={c.id} className={`chat-item-glass ${activeChat?.id === c.id ? 'active' : ''}`} onClick={() => setActiveChat(c)}>
+                            {c.username}
+                        </div>
+                    ))}
+                </div>
+                <div className="chat-window-glass">
+                    {!activeChat ? (
+                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                            Select a chat
+                        </div>
+                    ) : (
+                        <>
+                            <div style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0', fontWeight: '600', color: '#1e293b' }}>
+                                {activeChat.username}
+                            </div>
+                            <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                {messages.map((m, i) => (
+                                    <div key={i} className={`chat-bubble-glass ${m.sender_id === user.id ? 'bubble-me' : 'bubble-them'}`}>
+                                        {m.content}
+                                    </div>
+                                ))}
+                                <div ref={chatEndRef} />
+                            </div>
+                            <form style={{ padding: '1rem', display: 'flex', gap: '10px', borderTop: '1px solid #e2e8f0' }} onSubmit={send}>
+                                <input style={{ flex: 1, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '0.8rem 1rem', color: '#1e293b' }}
+                                    placeholder="Escribe un mensaje..."
+                                    value={input} onChange={e => setInput(e.target.value)} />
+                                <button className="btn-main" style={{ borderRadius: '50%', width: 45, height: 45, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <FaPaperPlane />
+                                </button>
+                            </form>
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// === WIDGETS SIDEBAR ===
+const RightSidebar = () => {
+    return (
+        <aside className="social-widgets">
+            <div className="widget-card">
+                <div className="widget-title"><FaFire style={{ color: '#f97316' }} /> Tendencias</div>
+                <div className="trend-item">
+                    <span className="trend-tag">#SaveTheOcean</span>
+                    <span className="trend-stat">2.4k posts</span>
+                </div>
+                <div className="trend-item">
+                    <span className="trend-tag">#UrbanFarming</span>
+                    <span className="trend-stat">1.8k posts</span>
+                </div>
+                <div className="trend-item">
+                    <span className="trend-tag">#PlasticFree</span>
+                    <span className="trend-stat">940 posts</span>
+                </div>
+            </div>
+
+            <div className="widget-card">
+                <div className="widget-title"><FaUserFriends style={{ color: '#a855f7' }} /> Sugerencias</div>
+                <div style={{ fontSize: '0.9rem', color: '#4b5563', marginBottom: '0.5rem' }}>Personas que quizás te interesen:</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#10b981' }}></div>
+                        <span>EcoBot_99</span>
+                    </div>
+                    <button style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', width: 28, height: 28 }}>+</button>
+                </div>
+            </div>
+        </aside>
+    );
+};
+
+// === CORE SHELL V4 ===
+
+export default function Community() {
+    const [view, setView] = useState('feed');
+    const { user } = useAuth();
+
+    return (
+        <div className="social-shell">
+            {/* LEFT NAV */}
+            <nav className="social-nav">
+                <div>
+                    <div className="brand-logo">
+                        <FaGlobeAmericas /> Wise Social
+                    </div>
+                    <div className="nav-menu">
+                        <div className={`nav-item ${view === 'feed' ? 'active' : ''}`} onClick={() => setView('feed')}>
+                            <FaHome style={{ fontSize: '1.2rem' }} /> Home
+                        </div>
+                        <div className={`nav-item ${view === 'chat' ? 'active' : ''}`} onClick={() => setView('chat')}>
+                            <FaCommentDots style={{ fontSize: '1.2rem' }} /> Mensajes
+                        </div>
+                        <Link to={`/profile/${user?.username}`} className="nav-item" style={{ textDecoration: 'none' }}>
+                            <FaUser style={{ fontSize: '1.2rem' }} /> Mi Perfil
+                        </Link>
+                    </div>
+                </div>
+
+                {user && (
+                    <div className="user-mini-profile">
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+                            {user.username[0]}
+                        </div>
+                        <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>@{user.username}</div>
+                    </div>
+                )}
+            </nav>
+
+            {/* MIDDLE (DYNAMIC) */}
+            <main className="social-main">
+                {view === 'feed' && <FeedView user={user} />}
+                {view === 'chat' && <ChatView user={user} />}
+            </main>
+
+            {/* RIGHT WIDGETS */}
+            {view === 'feed' && <RightSidebar />}
+        </div>
+    );
 }
-
-
-
