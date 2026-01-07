@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fa';
 import './Profile.css';
 import Toast from '../components/Toast';
+import BadgeList from '../components/BadgeList';
 
 export default function Profile() {
     const { username } = useParams();
@@ -175,22 +176,13 @@ export default function Profile() {
                     </div>
                 </section>
 
-                {/* 3. ACHIEVEMENTS SHOWCASE (Right Bottom) */}
+                {/* 3. BADGES & ACHIEVEMENTS SHOWCASE (Right Bottom) */}
                 <section className="content-showcase">
                     <div className="section-title">
-                        <FaTrophy style={{ color: '#f59e0b' }} /> Insignias y Logros
+                        <FaTrophy style={{ color: '#f59e0b' }} /> Insignias del Ozono
                     </div>
 
-                    <div className="achievements-grid">
-                        {achievements.map(ach => (
-                            <div key={ach.id} className={`achievement-item ${ach.unlocked ? 'unlocked' : ''}`}>
-                                <div className="ach-icon">
-                                    {ach.icon}
-                                </div>
-                                <div className="ach-name">{ach.name}</div>
-                            </div>
-                        ))}
-                    </div>
+                    <BadgeList targetUserId={profile.id} />
                 </section>
 
             </div>

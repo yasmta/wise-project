@@ -7,8 +7,11 @@ import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
 import dataRoutes from './routes/data.js';
 import communityRoutes from './routes/community.js';
+import challengeRoutes from './routes/challenges.js';
 import userRoutes from './routes/user.js';
 import socialRoutes from './routes/social.js';
+import badgeRoutes from './routes/badges.js';
+import quizRoutes from './routes/quizzes.js';
 
 const app = express();
 const PORT = 3001;
@@ -23,6 +26,9 @@ app.use('/api/user', userRoutes); // Points & Leaderboard
 app.use('/api/social', socialRoutes); // Friends & Messages
 app.use('/api', dataRoutes); // /api/ozone-concentration, etc.
 app.use('/api/community', communityRoutes);
+app.use('/api/challenges', challengeRoutes);
+app.use('/api/badges', badgeRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 // Statics (if needed, or frontend handles it)
 // app.use(express.static(path.join(__dirname, '../dist')));

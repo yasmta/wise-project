@@ -19,7 +19,7 @@ export default function Header() {
     const navLinks = [
         { name: t('nav_home'), path: '/' },
         { name: t('nav_info'), path: '/informacion' },
-        { name: t('nav_challenges'), path: '/retos' },
+        { name: t('nav_challenges'), path: '/challenges' },
         { name: t('nav_ranking'), path: '/ranking' },
         { name: t('nav_community'), path: '/comunidad' },
     ];

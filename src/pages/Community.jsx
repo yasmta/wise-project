@@ -58,6 +58,15 @@ const PostCard = ({ post, user }) => {
         const newCo = await res.json();
         setComments([newCo, ...comments]); // Prepend logic
         setCommentContent('');
+
+        // Award points for comment
+        try {
+            await fetch('http://localhost:3001/api/badges/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ action_type: 'forum_contributions' })
+            });
+        } catch (e) { console.error(e); }
     };
 
     return (
@@ -149,6 +158,15 @@ const FeedView = ({ user }) => {
         });
         setContent('');
         fetchAll();
+
+        // Award points for post
+        try {
+            await fetch('http://localhost:3001/api/badges/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ action_type: 'forum_contributions' })
+            });
+        } catch (e) { console.error(e); }
     };
 
     const rootPosts = posts.filter(p => !p.parent_id);
