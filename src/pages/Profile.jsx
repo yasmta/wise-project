@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import {
     FaUserCircle, FaUserPlus, FaEnvelope, FaTrophy, FaStar,
     FaCheckCircle, FaPaperPlane, FaTimes, FaMedal, FaGlobeAmericas, FaFire, FaShieldAlt,
