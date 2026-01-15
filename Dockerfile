@@ -21,9 +21,6 @@ RUN mkdir -p server/db_seed && cp -r server/db/* server/db_seed/
 # Expose the API port
 EXPOSE 3001
 
-# Define volume for persistence
-VOLUME ["/app/server/db"]
-
 # Start script: 
 # 1. Check if database.sqlite exists in the volume (it won't on first fresh deploy with volume).
 # 2. If not, copy from seed.
