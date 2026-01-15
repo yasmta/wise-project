@@ -8,6 +8,7 @@ import {
 import './Challenges.css';
 
 export default function Challenges() {
+    const { t } = useLanguage();
     const [challenges, setChallenges] = useState([]);
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
@@ -78,10 +79,10 @@ export default function Challenges() {
 
     const getDifficultyLabel = (level) => {
         switch (level) {
-            case 'easy': return 'Fácil';
-            case 'medium': return 'Medio';
-            case 'hard': return 'Difícil';
-            default: return 'Fácil';
+            case 'easy': return t('chal_diff_easy');
+            case 'medium': return t('chal_diff_medium');
+            case 'hard': return t('chal_diff_hard');
+            default: return t('chal_diff_easy');
         }
     };
 
@@ -98,8 +99,6 @@ export default function Challenges() {
         }
     };
 
-
-
     // Helper: File to Base64
     const fileToBase64 = (file) => new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -115,11 +114,10 @@ export default function Challenges() {
             const token = localStorage.getItem('token');
             let payload = {
                 type: 'challenge_repost',
-                type: 'challenge_repost',
                 challengeTitle: shareModal.title,
                 challengeDescription: shareModal.description,
                 challengeCategory: shareModal.category,
-                message: shareMessage || (shareModal.type === 'quiz' ? '¡He superado este quiz!' : '¡Misión cumplida!'),
+                message: shareMessage || (shareModal.type === 'quiz' ? t('chal_quiz_success') : t('chal_mission_completed')),
                 verifType: shareModal.verification_type,
                 points: shareModal.points
             };
@@ -148,24 +146,24 @@ export default function Challenges() {
 
             if (res.ok) {
                 console.log("Share successful");
-                alert("¡Publicación compartida con éxito en la Comunidad!");
+                alert(t('chal_share_success'));
                 setShareModal(null);
                 setShareMessage('');
             } else {
                 const errText = await res.text();
                 console.error("Share failed", errText);
-                alert("Error al compartir: " + errText);
+                alert(t('chal_share_error') + ": " + errText);
             }
         } catch (error) {
             console.error("Error sharing:", error);
-            alert("Error de conexión al compartir.");
+            alert(t('chal_share_connection_error'));
         }
     };
 
     // Quiz Helper Functions
     const formatUnlocksIn = (ms) => {
         const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
-        return `Desbloquea en ${days} días`;
+        return `${t('chal_quiz_unlocks')} ${days} days`;
     };
 
     const handleStartQuiz = (quiz) => {
@@ -211,7 +209,6 @@ export default function Challenges() {
                 const result = await res.json();
                 console.log("Submit Result:", result);
                 setQuizResult(result);
-                setQuizResult(result);
                 setShowSuccess(true); // Trigger success view
 
                 // Add to share queue
@@ -224,10 +221,9 @@ export default function Challenges() {
                         score: result.score,
                         total: result.total,
                         points: result.pointsAwarded,
-                        points: result.pointsAwarded,
                         verification_type: 'quiz'
                     });
-                    setShareMessage('¡He superado este quiz!');
+                    setShareMessage(t('chal_quiz_success'));
                 }
 
                 // Refresh quizzes to update status
@@ -257,20 +253,20 @@ export default function Challenges() {
         }
     };
 
-    if (loading) return <div className="container" style={{ textAlign: 'center', padding: '10rem' }}><h1>Cargando Misiones...</h1></div>;
+    if (loading) return <div className="container" style={{ textAlign: 'center', padding: '10rem' }}><h1>{t('chal_loading')}</h1></div>;
 
     if (inQuizMode) {
         return (
             <div className="container fade-in" style={{ padding: '2rem 1rem' }}>
                 <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <button className="btn-secondary" onClick={() => { setInQuizMode(false); setActiveQuiz(null); }}>← Volver</button>
-                    <h1>Quizzes Semanales</h1>
+                    <button className="btn-secondary" onClick={() => { setInQuizMode(false); setActiveQuiz(null); }}>← {t('chal_btn_back')}</button>
+                    <h1>{t('chal_quiz_weekly')}</h1>
                 </div>
 
                 {!activeQuiz ? (
                     <div className="quiz-dashboard-glass">
-                        <h2>Tu Progreso de Entrenamiento</h2>
-                        <p style={{ marginBottom: '2rem', color: '#64748b' }}>Completa un quiz cada 4 días para desbloquear el siguiente nivel de conocimiento.</p>
+                        <h2>{t('chal_quiz_progress')}</h2>
+                        <p style={{ marginBottom: '2rem', color: '#64748b' }}>{t('chal_quiz_desc')}</p>
 
                         <div className="quiz-path">
                             {quizzes.map((q, idx) => (
@@ -283,7 +279,7 @@ export default function Challenges() {
                                         <div className="node-icon">
                                             {q.status === 'completed' ? <FaCheckCircle /> : (q.status === 'locked' ? '🔒' : <FaBolt />)}
                                         </div>
-                                        <div className="node-label">Nivel {idx + 1}</div>
+                                        <div className="node-label">{t('chal_quiz_level')} {idx + 1}</div>
                                     </div>
                                     {idx < quizzes.length - 1 && <div className={`node-connector ${quizzes[idx + 1].status !== 'locked' ? 'active' : ''}`}></div>}
                                 </div>
@@ -295,12 +291,12 @@ export default function Challenges() {
                         {quizResult ? (
                             <div style={{ textAlign: 'center', padding: '2rem' }}>
                                 <FaMedal style={{ fontSize: '5rem', color: quizResult.success ? '#fbbf24' : '#94a3b8', marginBottom: '1.5rem' }} />
-                                <h2>{quizResult.success ? '¡Excelente Trabajo!' : 'Casi lo tienes...'}</h2>
-                                <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Puntuación: {quizResult.score} / {quizResult.total}</p>
-                                <button className="btn-primary" onClick={() => { setActiveQuiz(null); setInQuizMode(false); }}>Cerrar</button>
+                                <h2>{quizResult.success ? t('chal_quiz_success') : t('chal_quiz_almost')}</h2>
+                                <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>{t('chal_quiz_score')}: {quizResult.score} / {quizResult.total}</p>
+                                <button className="btn-primary" onClick={() => { setActiveQuiz(null); setInQuizMode(false); }}>{t('chal_modal_confirm')}</button>
 
                                 <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem', textAlign: 'left' }}>
-                                    <p style={{ marginBottom: '0.8rem', fontSize: '0.95rem', color: '#64748b', fontWeight: '500' }}>¡Presume de tu resultado!</p>
+                                    <p style={{ marginBottom: '0.8rem', fontSize: '0.95rem', color: '#64748b', fontWeight: '500' }}>{t('chal_quiz_share_title')}</p>
                                     <textarea
                                         value={shareMessage}
                                         onChange={e => setShareMessage(e.target.value)}
@@ -315,10 +311,10 @@ export default function Challenges() {
                                             fontSize: '0.95rem'
                                         }}
                                         rows={2}
-                                        placeholder="¡He superado este quiz! 🎓"
+                                        placeholder={`${t('chal_quiz_success')} 🎓`}
                                     />
                                     <button className="btn-share-gold" onClick={handleShareAchievement}>
-                                        <FaShareAlt /> Compartir en la Comunidad
+                                        <FaShareAlt /> {t('chal_quiz_share_btn')}
                                     </button>
                                 </div>
                             </div>
@@ -352,7 +348,7 @@ export default function Challenges() {
                                         onClick={handleSubmitQuiz}
                                         disabled={quizAnswers.includes(null) || isSubmitting}
                                     >
-                                        {isSubmitting ? 'Verificando...' : 'Finalizar Entrenamiento'}
+                                        {isSubmitting ? t('chal_quiz_verifying') : t('chal_quiz_finish')}
                                     </button>
                                 </div>
                             </>
@@ -362,13 +358,6 @@ export default function Challenges() {
             </div>
         );
     }
-
-
-
-
-
-
-
 
     const handleOpenMission = (challenge) => {
         console.log("Handle Open Mission Clicked:", challenge);
@@ -468,10 +457,9 @@ export default function Challenges() {
                     points: selectedMission.points,
                     verification_type: selectedMission.verification_type,
                     proof: selectedMission.verification_type === 'link' ? proofFile : null,
-                    proof: selectedMission.verification_type === 'link' ? proofFile : null,
                     proofFile: selectedMission.verification_type === 'photo' ? proofFile : null
                 });
-                setShareMessage('¡Misión cumplida!');
+                setShareMessage(t('chal_share_msg'));
 
                 setChallenges(prev => prev.map(c =>
                     c.id === selectedMission.id ? { ...c, status: 'approved' } : c
@@ -497,7 +485,7 @@ export default function Challenges() {
                             <FaRocket />
                         </div>
                         <div className="dash-info">
-                            <span className="dash-label">Cadete Espacial</span>
+                            <span className="dash-label">{t('chal_dash_cadet')}</span>
                             <h2>{user?.username || 'Explorador'}</h2>
                         </div>
                     </div>
@@ -507,21 +495,21 @@ export default function Challenges() {
                             <FaStar className="stat-icon" />
                             <div>
                                 <span className="stat-val">{userPoints}</span>
-                                <span className="stat-label">XP Total</span>
+                                <span className="stat-label">{t('prof_stat_xp')}</span>
                             </div>
                         </div>
                         <div className="stat-item">
                             <FaMedal className="stat-icon" />
                             <div>
-                                <span className="stat-val">Nvl {currentLevel}</span>
-                                <span className="stat-label">Rango</span>
+                                <span className="stat-val">{t('chal_quiz_level')} {currentLevel}</span>
+                                <span className="stat-label">{t('chal_dash_rank')}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="dash-progress">
                         <div className="progress-labels">
-                            <span>Progreso de Nivel</span>
+                            <span>{t('chal_dash_level_progress')}</span>
                             <span>{userPoints} / {nextLevelPoints} XP</span>
                         </div>
                         <div className="progress-bar-bg">
@@ -533,32 +521,32 @@ export default function Challenges() {
 
 
             <div className="challenges-header">
-                <h1>Centro de Misiones</h1>
-                <p>Completa objetivos estratégicos para salvar la capa de ozono y ganar XP.</p>
+                <h1>{t('chal_mission_center')}</h1>
+                <p>{t('chal_mission_desc')}</p>
             </div>
 
             {/* Filters */}
             <div className="filter-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <button className={`filter-btn ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>
-                    Todas
+                    {t('chal_filter_all')}
                 </button>
                 <button className={`filter-btn ${filter === 'transporte' ? 'active' : ''}`} onClick={() => setFilter('transporte')}>
-                    <FaBiking className="btn-icon" /> Transporte
+                    <FaBiking className="btn-icon" /> {t('chal_filter_transport')}
                 </button>
                 <button className={`filter-btn ${filter === 'hogar' ? 'active' : ''}`} onClick={() => setFilter('hogar')}>
-                    <FaPlug className="btn-icon" /> Hogar
+                    <FaPlug className="btn-icon" /> {t('chal_filter_home')}
                 </button>
                 <button className={`filter-btn ${filter === 'consumo' ? 'active' : ''}`} onClick={() => setFilter('consumo')}>
-                    <FaShoppingBag className="btn-icon" /> Consumo
+                    <FaShoppingBag className="btn-icon" /> {t('chal_filter_consumption')}
                 </button>
                 <button className={`filter-btn ${filter === 'educacion' ? 'active' : ''}`} onClick={() => setFilter('educacion')}>
-                    <FaGraduationCap className="btn-icon" /> Educación
+                    <FaGraduationCap className="btn-icon" /> {t('chal_filter_education')}
                 </button>
                 <button className={`filter-btn ${filter === 'social' ? 'active' : ''}`} onClick={() => setFilter('social')}>
-                    <FaUsers className="btn-icon" /> Social
+                    <FaUsers className="btn-icon" /> {t('chal_filter_social')}
                 </button>
                 <button className={`filter-btn ${filter === 'empresa' ? 'active' : ''}`} onClick={() => setFilter('empresa')}>
-                    <FaBuilding className="btn-icon" /> Empresa
+                    <FaBuilding className="btn-icon" /> {t('chal_filter_company')}
                 </button>
             </div>
 
@@ -574,7 +562,7 @@ export default function Challenges() {
                             {isCompleted && (
                                 <div className="mission-overlay">
                                     <FaCheckCircle className="success-icon" />
-                                    <span>¡Misión Cumplida!</span>
+                                    <span>{t('chal_completed_msg')}</span>
                                 </div>
                             )}
 
@@ -603,7 +591,7 @@ export default function Challenges() {
                                     disabled={isCompleted}
                                     style={{ background: isCompleted ? '#10b981' : '' }}
                                 >
-                                    {isCompleted ? 'Completado' : 'Iniciar Misión'}
+                                    {isCompleted ? t('chal_completed_msg') : t('chal_btn_accept')}
                                 </button>
                             </div>
                         </div>
@@ -686,13 +674,13 @@ export default function Challenges() {
                                         </div>
 
                                         <div className="modal-actions" style={{ marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
-                                            <button className="btn btn-secondary" onClick={() => setSelectedMission(null)}>Cancelar</button>
+                                            <button className="btn btn-secondary" onClick={() => setSelectedMission(null)}>{t('chal_modal_cancel')}</button>
                                             <button
                                                 className="btn btn-primary"
                                                 onClick={handleSubmitQuiz}
                                                 disabled={quizAnswers.includes(null) || isSubmitting}
                                             >
-                                                {isSubmitting ? 'Verificando...' : 'Enviar Respuestas'}
+                                                {isSubmitting ? t('chal_quiz_verifying') : t('chal_quiz_finish')}
                                             </button>
                                         </div>
                                     </div>
@@ -725,7 +713,7 @@ export default function Challenges() {
                                                 ) : (
                                                     <label className="upload-zone">
                                                         <div className="upload-icon">📷</div>
-                                                        <div style={{ fontWeight: '600', color: '#475569', fontSize: '1.1rem' }}>Subir Foto de Evidencia</div>
+                                                        <div style={{ fontWeight: '600', color: '#475569', fontSize: '1.1rem' }}>{t('chal_modal_upload_photo')}</div>
                                                         <div style={{ fontSize: '0.9rem', color: '#94a3b8', marginTop: '0.5rem' }}>JPG, PNG (Max 5MB)</div>
                                                         <input type="file" hidden accept="image/*" onChange={handleFileChange} />
                                                     </label>
@@ -735,7 +723,7 @@ export default function Challenges() {
 
                                         {selectedMission.verification_type === 'link' && (
                                             <div className="link-input-group" style={{ marginBottom: '1.5rem' }}>
-                                                <label>Enlace de Evidencia</label>
+                                                <label>{t('chal_modal_link_evidence')}</label>
                                                 <input
                                                     type="url"
                                                     className="link-input"
@@ -749,12 +737,12 @@ export default function Challenges() {
                                         {isSubmitting ? (
                                             <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
                                                 <div className="spinner"></div>
-                                                <h3 className="analyzing-text">Analizando con IA...</h3>
+                                                <h3 className="analyzing-text">{t('chal_modal_analyzing')}</h3>
                                                 <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Verificando tu evidencia en tiempo real</p>
                                             </div>
                                         ) : (
                                             <div className="modal-actions">
-                                                <button className="btn btn-secondary" onClick={() => setSelectedMission(null)}>Cancelar</button>
+                                                <button className="btn btn-secondary" onClick={() => setSelectedMission(null)}>{t('chal_modal_cancel')}</button>
                                                 <button
                                                     className="btn btn-primary"
                                                     onClick={handleSubmitMission}
@@ -763,7 +751,7 @@ export default function Challenges() {
                                                         (selectedMission.verification_type === 'link' && (!proofFile || proofFile.length < 5))
                                                     }
                                                 >
-                                                    {selectedMission.verification_type === 'auto' ? 'Confirmar' : 'Enviar Evidencia'}
+                                                    {selectedMission.verification_type === 'auto' ? t('chal_modal_confirm') : t('chal_modal_send_evidence')}
                                                 </button>
                                             </div>
                                         )}
@@ -800,15 +788,15 @@ export default function Challenges() {
                                     </>
                                 ) : (
                                     <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1.1rem' }}>
-                                        Has completado la misión y ganado <strong style={{ color: '#f59e0b', fontSize: '1.2rem' }}>{selectedMission.points} XP</strong>
+                                        {t('chal_completed_msg')} <strong style={{ color: '#f59e0b', fontSize: '1.2rem' }}>{selectedMission.points} XP</strong>
                                     </p>
                                 )}
 
-                                <button className="btn btn-primary" onClick={() => { setSelectedMission(null); setShowSuccess(false); setQuizResult(null); setShareModal(null); }}>Continuar</button>
+                                <button className="btn btn-primary" onClick={() => { setSelectedMission(null); setShowSuccess(false); setQuizResult(null); setShareModal(null); }}>{t('chal_modal_continue')}</button>
 
                                 {shareModal && (
                                     <div style={{ marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
-                                        <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#64748b' }}>Edita tu mensaje para la comunidad:</p>
+                                        <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#64748b' }}>{t('chal_quiz_share_title')}</p>
                                         <textarea
                                             value={shareMessage}
                                             onChange={e => setShareMessage(e.target.value)}
@@ -822,10 +810,10 @@ export default function Challenges() {
                                                 fontFamily: 'inherit'
                                             }}
                                             rows={2}
-                                            placeholder="¡He completado este reto!"
+                                            placeholder={`${t('chal_quiz_success')} 🎓`}
                                         />
                                         <button className="btn-share-gold" onClick={handleShareAchievement}>
-                                            <FaShareAlt /> Compartir en la Comunidad
+                                            <FaShareAlt /> {t('chal_quiz_share_btn')}
                                         </button>
                                     </div>
                                 )}

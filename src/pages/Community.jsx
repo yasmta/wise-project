@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
 import API_URL from '../api';
 import {
     FaUserFriends, FaCommentDots, FaGlobeAmericas,
-    FaHeart, FaRegHeart, FaRegComment, FaPaperPlane, FaFire, FaTrophy
+    FaHeart, FaRegHeart, FaRegComment, FaPaperPlane, FaFire, FaTrophy, FaUserPlus
 } from 'react-icons/fa';
 import './Community.css';
 
 // === SUB-COMPONENTS ===
 
 const PostCard = ({ post, user }) => {
+    const { t } = useLanguage();
     const [likes, setLikes] = useState(post.likes || 0);
-    // Initialize isLiked from the backend's user_liked field
     const [isLiked, setIsLiked] = useState(post.user_liked || false);
     const [showComments, setShowComments] = useState(false);
     const [comments, setComments] = useState([]);
@@ -35,7 +36,6 @@ const PostCard = ({ post, user }) => {
     }, [showComments, post.id]);
 
     const handleLike = async () => {
-        // Optimistic update
         const newLikedState = !isLiked;
         setIsLiked(newLikedState);
         setLikes(prev => newLikedState ? prev + 1 : prev - 1);
@@ -50,7 +50,6 @@ const PostCard = ({ post, user }) => {
             });
         } catch (e) {
             console.error(e);
-            // Revert if error
             setIsLiked(!newLikedState);
             setLikes(prev => !newLikedState ? prev + 1 : prev - 1);
         }
@@ -70,7 +69,6 @@ const PostCard = ({ post, user }) => {
         setComments([newCo, ...comments]);
         setCommentContent('');
 
-        // Award points for comment
         try {
             await fetch(`${API_URL}/api/badges/action`, {
                 method: 'POST',
@@ -80,7 +78,6 @@ const PostCard = ({ post, user }) => {
         } catch (e) { console.error(e); }
     };
 
-    // Parse Content for Special Posts
     let specialData = null;
     let displayContent = post.content;
     try {
@@ -91,9 +88,7 @@ const PostCard = ({ post, user }) => {
                 displayContent = parsed.message;
             }
         }
-    } catch (e) {
-        // Not JSON, normal text
-    }
+    } catch (e) { }
 
     return (
         <div className={`feed-card fade-in ${specialData ? 'special-challenge-card' : ''}`}>
@@ -120,7 +115,6 @@ const PostCard = ({ post, user }) => {
                         </div>
                         <div className="repost-body">
                             <div className={`repost-icon cat-${specialData.challengeCategory}`}>
-                                {/* Simple icon placeholder or we could map category again */}
                                 <FaFire />
                             </div>
                             <div className="repost-details">
@@ -165,15 +159,15 @@ const PostCard = ({ post, user }) => {
                         <input
                             className="comment-input"
                             style={{ flex: 1, padding: '0.6rem 1rem', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.1)', background: '#f8fafc' }}
-                            placeholder="Add a comment..."
+                            placeholder={t('comm_comment_placeholder')}
                             value={commentContent}
                             onChange={e => setCommentContent(e.target.value)}
                         />
-                        <button type="submit" disabled={!commentContent} style={{ border: 'none', background: 'transparent', color: '#a855f7', cursor: 'pointer' }}>Post</button>
+                        <button type="submit" disabled={!commentContent} style={{ border: 'none', background: 'transparent', color: '#a855f7', cursor: 'pointer' }}>{t('comm_btn_publish')}</button>
                     </form>
 
                     <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {loadingComments ? <div style={{ opacity: 0.5, fontSize: '0.9rem' }}>Loading...</div> : comments.map(c => (
+                        {loadingComments ? <div style={{ opacity: 0.5, fontSize: '0.9rem' }}>{t('comm_loading_posts')}</div> : comments.map(c => (
                             <div key={c.id} className="comment-item" style={{ display: 'flex', gap: '10px', fontSize: '0.9rem' }}>
                                 <div style={{ width: 28, height: 28, borderRadius: '50%', background: c.avatarColor || '#64748b', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem' }}>
                                     {c.author[0]}
@@ -191,22 +185,42 @@ const PostCard = ({ post, user }) => {
     );
 };
 
-const FeedView = ({ user }) => {
+const FeedView = ({ user, filter = 'all' }) => {
+    const { t } = useLanguage();
     const [posts, setPosts] = useState([]);
     const [content, setContent] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const fetchAll = () => {
+        setLoading(true);
+        setError(null);
         const token = localStorage.getItem('token');
-        fetch(`${API_URL}/api/community/posts`, {
+        fetch(`${API_URL}/api/community/posts?filter=${filter}`, {
             headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         })
-            .then(res => res.json())
-            .then(data => setPosts(Array.isArray(data) ? data : []));
+            .then(async res => {
+                if (!res.ok) {
+                    if (res.status === 401) throw new Error('Debes iniciar sesión para ver esto.');
+                    throw new Error('Error al cargar posts');
+                }
+                return res.json();
+            })
+            .then(data => {
+                setPosts(Array.isArray(data) ? data : []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setError(err.message);
+                setPosts([]);
+                setLoading(false);
+            });
     };
 
     useEffect(() => {
         fetchAll();
-    }, []);
+    }, [filter]);
 
     const handlePost = async (e) => {
         e.preventDefault();
@@ -220,7 +234,6 @@ const FeedView = ({ user }) => {
         setContent('');
         fetchAll();
 
-        // Award points for post
         try {
             await fetch(`${API_URL}/api/badges/action`, {
                 method: 'POST',
@@ -238,20 +251,37 @@ const FeedView = ({ user }) => {
                 <form onSubmit={handlePost}>
                     <div className="composer-area">
                         <textarea
-                            placeholder={`What's on your mind, ${user?.username || 'earthling'}?`}
+                            placeholder={t('comm_placeholder_post')}
                             value={content}
                             onChange={e => setContent(e.target.value)}
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
                         <button className="btn-main" style={{ borderRadius: '20px', padding: '0.6rem 1.5rem' }}>
-                            <FaPaperPlane style={{ marginRight: '6px' }} /> Publicar
+                            <FaPaperPlane style={{ marginRight: '6px' }} /> {t('comm_btn_publish')}
                         </button>
                     </div>
                 </form>
             </div>
 
             <div className="stream">
+                {loading && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.6 }}>{t('comm_loading_posts')}</div>}
+
+                {error && (
+                    <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444', background: '#fee2e2', borderRadius: '12px' }}>
+                        {error}
+                        {filter === 'friends' && !user && <div style={{ marginTop: '10px' }}>Por favor inicia sesión.</div>}
+                    </div>
+                )}
+
+                {!loading && !error && rootPosts.length === 0 && (
+                    <div style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8' }}>
+                        {filter === 'friends'
+                            ? "No hay posts de amigos aún. ¡Añade amigos para ver sus actualizaciones!"
+                            : t('comm_no_posts')}
+                    </div>
+                )}
+
                 {rootPosts.map(post => (
                     <PostCard key={post.id} post={post} user={user} />
                 ))}
@@ -261,6 +291,7 @@ const FeedView = ({ user }) => {
 };
 
 const ChatView = ({ user }) => {
+    const { t } = useLanguage();
     const [conversations, setConversations] = useState([]);
     const [activeChat, setActiveChat] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -297,7 +328,6 @@ const ChatView = ({ user }) => {
         }
     }, [activeChat]);
 
-    // Scrolls only the container, preventing full page jump
     useEffect(() => {
         if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
@@ -321,10 +351,10 @@ const ChatView = ({ user }) => {
     return (
         <div className="chat-container-glass fade-in-up">
             <div className="chat-sidebar">
-                <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)', fontWeight: 'bold', color: '#334155' }}>Recent Chats</div>
-                {loading && <div style={{ padding: '1rem', color: '#64748b' }}>Loading...</div>}
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)', fontWeight: 'bold', color: '#334155' }}>{t('comm_chats_recent')}</div>
+                {loading && <div style={{ padding: '1rem', color: '#64748b' }}>Cargando...</div>}
                 {!loading && conversations.length === 0 && (
-                    <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>No chats yet.</div>
+                    <div style={{ padding: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>{t('comm_no_chats')}</div>
                 )}
                 {conversations.map(c => (
                     <div key={c.id} className={`chat-item-glass ${activeChat?.id === c.id ? 'active' : ''}`} onClick={() => setActiveChat(c)}>
@@ -340,7 +370,7 @@ const ChatView = ({ user }) => {
             <div className="chat-main">
                 {!activeChat ? (
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
-                        Select a conversation to start chatting
+                        {t('comm_select_chat')}
                     </div>
                 ) : (
                     <>
@@ -359,7 +389,7 @@ const ChatView = ({ user }) => {
                         </div>
                         <form style={{ padding: '1rem', display: 'flex', gap: '10px', background: 'rgba(255,255,255,0.4)' }} onSubmit={send}>
                             <input style={{ flex: 1, background: 'rgba(255,255,255,0.8)', border: '1px solid transparent', borderRadius: '20px', padding: '0.8rem 1rem', color: '#1e293b' }}
-                                placeholder="Type a message..."
+                                placeholder={t('comm_type_message')}
                                 value={input} onChange={e => setInput(e.target.value)} />
                             <button className="btn-main" style={{ borderRadius: '50%', width: 45, height: 45, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <FaPaperPlane />
@@ -372,43 +402,162 @@ const ChatView = ({ user }) => {
     );
 };
 
-// === WIDGETS SIDEBAR ===
+// === SIDEBARS ===
+
+const FriendsSidebar = () => {
+    const { t } = useLanguage();
+    const [friends, setFriends] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        fetch(`${API_URL}/api/social/friends`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(res => res.json())
+            .then(data => {
+                setFriends(Array.isArray(data) ? data : []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, []);
+
+    return (
+        <aside className="social-widgets left-sidebar fade-in-up">
+            <div className="widget-card">
+                <div className="widget-title"><FaUserFriends style={{ color: '#a855f7' }} /> Mis Amigos</div>
+                {loading && <div style={{ fontSize: '0.9rem', color: '#64748b' }}>Cargando amigos...</div>}
+
+                {!loading && friends.length === 0 && (
+                    <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Buscando amigos...</div>
+                )}
+
+                <div className="friends-list">
+                    {friends.map(friend => (
+                        <div key={friend.id} className="friend-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                            <div style={{
+                                width: 36, height: 36, borderRadius: '50%',
+                                background: friend.avatarColor || '#a855f7',
+                                color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontWeight: 'bold'
+                            }}>
+                                {friend.username[0]}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{friend.username}</div>
+                                <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{friend.points} XP</div>
+                            </div>
+                            <Link to={`/profile/${friend.username}`} style={{ color: '#a855f7' }}>
+                                <FaCommentDots />
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </aside>
+    );
+};
+
 const RightSidebar = () => {
+    const { t } = useLanguage();
+    const [recommended, setRecommended] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchRecommended = () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        fetch(`${API_URL}/api/social/recommended`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+            .then(res => res.json())
+            .then(data => {
+                setRecommended(Array.isArray(data) ? data : []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    };
+
+    useEffect(() => {
+        fetchRecommended();
+    }, []);
+
+    const sendRequest = async (userId) => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${API_URL}/api/social/friends/request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ toUserId: userId })
+            });
+            if (res.ok) {
+                // Remove sent user from list or show success
+                setRecommended(prev => prev.filter(u => u.id !== userId));
+                alert('Solicitud enviada!');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     return (
         <aside className="social-widgets fade-in-up delay-200">
             <div className="widget-card">
-                <div className="widget-title"><FaFire style={{ color: '#f97316' }} /> Trending</div>
+                <div className="widget-title"><FaFire style={{ color: '#f97316' }} /> {t('comm_sidebar_trending')}</div>
                 <div className="trend-item">
-                    <span className="trend-tag">#SaveTheOcean</span>
+                    <span className="trend-tag">#SalvemosElOceano</span>
                     <span className="trend-stat">2.4k posts</span>
                 </div>
                 <div className="trend-item">
-                    <span className="trend-tag">#UrbanFarming</span>
+                    <span className="trend-tag">#HuertoUrbano</span>
                     <span className="trend-stat">1.8k posts</span>
                 </div>
                 <div className="trend-item">
-                    <span className="trend-tag">#PlasticFree</span>
+                    <span className="trend-tag">#SinPlastico</span>
                     <span className="trend-stat">940 posts</span>
                 </div>
             </div>
 
             <div className="widget-card">
-                <div className="widget-title"><FaUserFriends style={{ color: '#a855f7' }} /> Recommended</div>
-                <div style={{ fontSize: '0.9rem', color: '#4b5563', marginBottom: '0.8rem' }}>Connect with eco-warriors:</div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#10b981' }}></div>
-                        <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>EcoBot_99</span>
+                <div className="widget-title"><FaUserFriends style={{ color: '#a855f7' }} /> {t('comm_sidebar_recommended')}</div>
+                <div style={{ fontSize: '0.9rem', color: '#4b5563', marginBottom: '0.8rem' }}>{t('comm_connect_eco')}</div>
+
+                {loading && <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Cargando sugerencias...</div>}
+
+                {!loading && recommended.length === 0 && (
+                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{t('comm_no_suggestions')}</div>
+                )}
+
+                {recommended.map(user => (
+                    <div key={user.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: user.avatarColor || '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                                {user.username[0]}
+                            </div>
+                            <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{user.username}</span>
+                        </div>
+                        <button
+                            onClick={() => sendRequest(user.id)}
+                            style={{ background: '#e0e7ff', border: 'none', color: '#4f46e5', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            title="Add Friend"
+                        >
+                            <FaUserPlus size={12} />
+                        </button>
                     </div>
-                    <button style={{ background: '#e0e7ff', border: 'none', color: '#4f46e5', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer' }}>+</button>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f43f5e' }}></div>
-                        <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>GreenLife</span>
-                    </div>
-                    <button style={{ background: '#e0e7ff', border: 'none', color: '#4f46e5', borderRadius: '50%', width: 28, height: 28, cursor: 'pointer' }}>+</button>
-                </div>
+                ))}
             </div>
         </aside>
     );
@@ -417,8 +566,10 @@ const RightSidebar = () => {
 // === CORE SHELL V5 ===
 
 export default function Community() {
-    const [view, setView] = useState('feed');
+    // Default view
+    const [view, setView] = useState('friends');
     const { user } = useAuth(); // Ensures user is context-aware
+    const { t } = useLanguage();
 
     return (
         <div className="community-page">
@@ -431,29 +582,40 @@ export default function Community() {
                         <div className={`tab-glider ${view}`}></div>
 
                         <button
+                            className={`tab-pill ${view === 'friends' ? 'active' : ''}`}
+                            onClick={() => setView('friends')}
+                        >
+                            <FaUserFriends /> {t('comm_tab_friends')}
+                        </button>
+                        <button
                             className={`tab-pill ${view === 'feed' ? 'active' : ''}`}
                             onClick={() => setView('feed')}
                         >
-                            <FaGlobeAmericas /> Community Feed
+                            <FaGlobeAmericas /> {t('comm_tab_feed')}
                         </button>
                         <button
                             className={`tab-pill ${view === 'chat' ? 'active' : ''}`}
                             onClick={() => setView('chat')}
                         >
-                            <FaCommentDots /> Messages
+                            <FaCommentDots /> {t('comm_tab_messages')}
                         </button>
                     </div>
                 </div>
 
-                <div className={`community-layout ${view === 'chat' ? 'chat-mode' : ''}`}>
-                    {/* LEFT MAIN CONTENT */}
+                <div className={`community-layout ${view === 'chat' ? 'chat-mode' : ''} ${view === 'friends' ? 'friends-mode' : ''}`}>
+
+                    {/* LEFT SIDEBAR (Only on Friends view) */}
+                    {view === 'friends' && <FriendsSidebar />}
+
+                    {/* MAIN CONTENT */}
                     <main className="social-main">
-                        {view === 'feed' && <FeedView user={user} />}
+                        {view === 'friends' && <FeedView user={user} filter="friends" />}
+                        {view === 'feed' && <FeedView user={user} filter="all" />}
                         {view === 'chat' && <ChatView user={user} />}
                     </main>
 
-                    {/* RIGHT WIDGETS (Only visible on Feed view for cleaner chat experience) */}
-                    {view === 'feed' ? <RightSidebar /> : null}
+                    {/* RIGHT WIDGETS (Only visible on Feed/Friends view for cleaner chat experience) */}
+                    {(view === 'feed' || view === 'friends') ? <RightSidebar /> : null}
                 </div>
             </div>
         </div>

@@ -13,6 +13,7 @@ import BadgeList from '../components/BadgeList';
 
 export default function Profile() {
     const { username } = useParams();
+    const { t } = useLanguage();
     const { user, logout } = useAuth();
     const [profile, setProfile] = useState(null);
     const [status, setStatus] = useState('none');
@@ -63,9 +64,24 @@ export default function Profile() {
             });
             if (res.ok) {
                 setStatus('pending');
-                showToast('Solicitud enviada!', 'success');
+                showToast(t('prof_msg_sent'), 'success');
             }
-        } catch (err) { console.error(err); showToast('Error al enviar solicitud', 'error'); }
+        } catch (err) { console.error(err); showToast(t('prof_toast_req_error'), 'error'); }
+    };
+
+    const acceptFriendRequest = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/api/social/friends/accept`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ fromUserId: profile.id })
+            });
+            if (res.ok) {
+                setStatus('accepted');
+                showToast(t('prof_msg_success_friend'), 'success');
+            }
+        } catch (err) { console.error(err); showToast(t('prof_toast_friend_error'), 'error'); }
     };
 
     const sendMessage = async (e) => {
@@ -78,14 +94,14 @@ export default function Profile() {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ toUserId: profile.id, content: msgContent })
             });
-            showToast('Mensaje enviado!', 'success');
+            showToast(t('prof_msg_msg_sent'), 'success');
             setMsgModalOpen(false);
             setMsgContent('');
-        } catch (err) { showToast('Error enviando mensaje', 'error'); }
+        } catch (err) { showToast(t('prof_toast_msg_error'), 'error'); }
     };
 
-    if (loading) return <div style={{ padding: '5rem', textAlign: 'center' }}>Cargando perfil...</div>;
-    if (!profile) return <div style={{ padding: '5rem', textAlign: 'center' }}>Usuario no encontrado</div>;
+    if (loading) return <div style={{ padding: '5rem', textAlign: 'center' }}>{t('prof_loading')}</div>;
+    if (!profile) return <div style={{ padding: '5rem', textAlign: 'center' }}>{t('prof_not_found')}</div>;
 
     const isMe = user?.username === profile.username;
 
@@ -126,7 +142,7 @@ export default function Profile() {
                             <div className="hero-handle">@{profile.username}</div>
 
                             <div className="level-badge">
-                                <FaMedal /> Nivel {profile.level}
+                                <FaMedal /> {t('prof_level')} {profile.level}
                             </div>
 
                             {/* ACTIONS / NAVIGATION */}
@@ -137,7 +153,7 @@ export default function Profile() {
                                             className={`nav-btn ${activeTab === 'badges' ? 'active' : ''}`}
                                             onClick={() => setActiveTab('badges')}
                                         >
-                                            <FaTrophy /> Insignias
+                                            <FaTrophy /> {t('prof_tab_badges')}
                                         </button>
                                         {user?.username === 'xaviserra' && (
                                             <button
@@ -145,44 +161,53 @@ export default function Profile() {
                                                 onClick={() => window.location.href = '/admin'}
                                                 style={{ color: '#fbbf24', borderColor: '#fbbf24' }}
                                             >
-                                                <FaShieldAlt /> Panel Admin
+                                                <FaShieldAlt /> {t('prof_tab_admin')}
                                             </button>
                                         )}
                                         <button
                                             className={`nav-btn ${activeTab === 'personal' ? 'active' : ''}`}
                                             onClick={() => setActiveTab('personal')}
                                         >
-                                            <FaIdCard /> Mis Datos
+                                            <FaIdCard /> {t('prof_tab_personal')}
                                         </button>
                                         <button
                                             className={`nav-btn ${activeTab === 'password' ? 'active' : ''}`}
                                             onClick={() => setActiveTab('password')}
                                         >
-                                            <FaKey /> Contraseña
+                                            <FaKey /> {t('prof_tab_password')}
                                         </button>
                                         <button className="nav-btn logout" onClick={logout}>
-                                            <FaUserCircle /> Cerrar Sesión
+                                            <FaUserCircle /> {t('prof_btn_logout')}
                                         </button>
                                     </div>
                                 ) : (
                                     <>
                                         {status === 'none' && (
                                             <button className="btn-action btn-primary" onClick={sendFriendRequest}>
-                                                <FaUserPlus /> Añadir Amigo
+                                                <FaUserPlus /> {t('prof_btn_add_friend')}
                                             </button>
                                         )}
                                         {status === 'pending' && (
-                                            <button className="btn-action btn-secondary" disabled>
-                                                Solicitud Pendiente
-                                            </button>
+                                            <>
+                                                {/* If I am the sender (user.id == profile.friendshipSenderId), show pending */}
+                                                {user?.id === profile.friendshipSenderId ? (
+                                                    <button className="btn-action btn-secondary" disabled>
+                                                        {t('prof_btn_pending')}
+                                                    </button>
+                                                ) : (
+                                                    <button className="btn-action btn-primary" onClick={acceptFriendRequest} style={{ background: '#10b981', borderColor: '#10b981', color: 'white' }}>
+                                                        <FaCheckCircle /> {t('prof_btn_accept')}
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
                                         {status === 'accepted' && (
                                             <button className="btn-action btn-secondary" style={{ color: '#10b981', borderColor: '#10b981' }} disabled>
-                                                <FaCheckCircle /> Amigos
+                                                <FaCheckCircle /> {t('prof_btn_friends')}
                                             </button>
                                         )}
                                         <button className="btn-action btn-secondary" onClick={() => setMsgModalOpen(true)}>
-                                            <FaEnvelope /> Enviar Mensaje
+                                            <FaEnvelope /> {t('prof_btn_send_msg')}
                                         </button>
                                     </>
                                 )}
@@ -197,7 +222,7 @@ export default function Profile() {
                                 <FaStar />
                             </div>
                             <span className="stat-val">{profile.points}</span>
-                            <span className="stat-label">XP Total</span>
+                            <span className="stat-label">{t('prof_stat_xp')}</span>
                         </div>
 
                         <div className="stat-box">
@@ -205,7 +230,7 @@ export default function Profile() {
                                 <FaTrophy />
                             </div>
                             <span className="stat-val">#{profile.rank}</span>
-                            <span className="stat-label">Ranking Global</span>
+                            <span className="stat-label">{t('prof_stat_rank')}</span>
                         </div>
 
                         <div className="stat-box">
@@ -213,7 +238,7 @@ export default function Profile() {
                                 <FaFire />
                             </div>
                             <span className="stat-val">12</span>
-                            <span className="stat-label">Racha Días</span>
+                            <span className="stat-label">{t('prof_stat_streak')}</span>
                         </div>
                     </section>
 
@@ -223,7 +248,7 @@ export default function Profile() {
                         {activeTab === 'badges' && (
                             <section className="content-showcase fade-in-up">
                                 <div className="section-title">
-                                    <FaTrophy style={{ color: '#f59e0b' }} /> Insignias del Ozono
+                                    <FaTrophy style={{ color: '#f59e0b' }} /> {t('prof_sec_badges')}
                                 </div>
                                 <BadgeList targetUserId={profile.id} />
                             </section>
@@ -232,19 +257,19 @@ export default function Profile() {
                         {activeTab === 'personal' && (
                             <section className="content-showcase fade-in-up">
                                 <div className="section-title">
-                                    <FaIdCard style={{ color: '#3b82f6' }} /> Mis Datos Personales
+                                    <FaIdCard style={{ color: '#3b82f6' }} /> {t('prof_sec_personal')}
                                 </div>
-                                <form className="settings-form" onSubmit={(e) => { e.preventDefault(); showToast('Datos actualizados', 'success'); }}>
+                                <form className="settings-form" onSubmit={(e) => { e.preventDefault(); showToast(t('prof_toast_updated'), 'success'); }}>
                                     <div className="form-group">
-                                        <label>Nombre de Usuario</label>
+                                        <label>{t('prof_label_username')}</label>
                                         <input type="text" value={profile.username} disabled style={{ opacity: 0.7 }} />
-                                        <small>El nombre de usuario no se puede cambiar.</small>
+                                        <small>{t('prof_note_username')}</small>
                                     </div>
                                     <div className="form-group">
-                                        <label>Correo Electrónico (Simulado)</label>
+                                        <label>{t('prof_label_email')}</label>
                                         <input type="email" defaultValue={`${profile.username.toLowerCase()}@wise.com`} />
                                     </div>
-                                    <button type="submit" className="btn-action btn-primary" style={{ marginTop: '1rem' }}>Guardar Cambios</button>
+                                    <button type="submit" className="btn-action btn-primary" style={{ marginTop: '1rem' }}>{t('prof_btn_save')}</button>
                                 </form>
                             </section>
                         )}
@@ -252,22 +277,22 @@ export default function Profile() {
                         {activeTab === 'password' && (
                             <section className="content-showcase fade-in-up">
                                 <div className="section-title">
-                                    <FaKey style={{ color: '#8b5cf6' }} /> Cambiar Contraseña
+                                    <FaKey style={{ color: '#8b5cf6' }} /> {t('prof_sec_password')}
                                 </div>
-                                <form className="settings-form" onSubmit={(e) => { e.preventDefault(); showToast('Contraseña actualizada', 'success'); }}>
+                                <form className="settings-form" onSubmit={(e) => { e.preventDefault(); showToast(t('prof_toast_pwd_updated'), 'success'); }}>
                                     <div className="form-group">
-                                        <label>Contraseña Actual</label>
+                                        <label>{t('prof_label_current_pwd')}</label>
                                         <input type="password" placeholder="••••••••" />
                                     </div>
                                     <div className="form-group">
-                                        <label>Nueva Contraseña</label>
+                                        <label>{t('prof_label_new_pwd')}</label>
                                         <input type="password" placeholder="••••••••" />
                                     </div>
                                     <div className="form-group">
-                                        <label>Confirmar Contraseña</label>
+                                        <label>{t('prof_label_confirm_pwd')}</label>
                                         <input type="password" placeholder="••••••••" />
                                     </div>
-                                    <button type="submit" className="btn-action btn-primary" style={{ marginTop: '1rem' }}>Actualizar Contraseña</button>
+                                    <button type="submit" className="btn-action btn-primary" style={{ marginTop: '1rem' }}>{t('prof_btn_update_pwd')}</button>
                                 </form>
                             </section>
                         )}
@@ -286,7 +311,7 @@ export default function Profile() {
                     <div className="modal-overlay" onClick={() => setMsgModalOpen(false)}>
                         <div className="modal-content" onClick={e => e.stopPropagation()}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                <h3 style={{ margin: 0, color: '#111' }}>Mensaje para {profile.username}</h3>
+                                <h3 style={{ margin: 0, color: '#111' }}>{t('prof_modal_title')} {profile.username}</h3>
                                 <button onClick={() => setMsgModalOpen(false)} style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer' }}><FaTimes /></button>
                             </div>
                             <form onSubmit={sendMessage}>

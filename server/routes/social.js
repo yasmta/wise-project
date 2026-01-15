@@ -36,16 +36,21 @@ router.get('/profile/:username', async (req, res) => {
         const rank = rankData ? rankData.rank : '-';
 
         let friendshipStatus = 'none';
+        let friendshipSenderId = null;
+
         if (requesterId) {
             // Check friendship
             const f = await db.get(`
-                SELECT status FROM friendships 
+                SELECT status, user_id_1 FROM friendships 
                 WHERE (user_id_1 = ? AND user_id_2 = ?) OR (user_id_1 = ? AND user_id_2 = ?)
             `, [requesterId, user.id, user.id, requesterId]);
-            if (f) friendshipStatus = f.status;
+            if (f) {
+                friendshipStatus = f.status;
+                friendshipSenderId = f.user_id_1;
+            }
         }
 
-        res.json({ ...user, level, rank, friendshipStatus });
+        res.json({ ...user, level, rank, friendshipStatus, friendshipSenderId });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -76,9 +81,24 @@ router.post('/friends/request', authenticateToken, async (req, res) => {
 });
 
 router.post('/friends/accept', authenticateToken, async (req, res) => {
-    const { friendshipId } = req.body; // Or use user ID logic
-    // For simplicity, let's accept by target user ID
-    // Actually better to have a list of pending requests
+    const { fromUserId } = req.body; // The user who sent the request
+    const myId = req.user.id;
+
+    try {
+        const db = await getDb();
+        // Ensure I am the receiver (user_id_2) and it is pending
+        // Or generic unsafe update: WHERE ...
+        // Proper way: The requester (fromUserId) MUST be user_id_1, and I (myId) MUST be user_id_2
+        await db.run(`
+            UPDATE friendships 
+            SET status = 'accepted' 
+            WHERE user_id_1 = ? AND user_id_2 = ? AND status = 'pending'
+        `, [fromUserId, myId]);
+
+        res.json({ success: true, status: 'accepted' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Get Friends List
@@ -87,7 +107,7 @@ router.get('/friends', authenticateToken, async (req, res) => {
     try {
         const db = await getDb();
         const friends = await db.all(`
-            SELECT u.id, u.username, u.points 
+            SELECT u.id, u.username, u.points
             FROM friendships f
             JOIN users u ON (u.id = f.user_id_1 OR u.id = f.user_id_2)
             WHERE (f.user_id_1 = ? OR f.user_id_2 = ?) 
@@ -95,6 +115,30 @@ router.get('/friends', authenticateToken, async (req, res) => {
             AND u.id != ?
         `, [userId, userId, userId]);
         res.json(friends);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Recommended Users
+router.get('/recommended', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const db = await getDb();
+        // Get users who are NOT me and NOT my friends (pending or accepted)
+        const recommended = await db.all(`
+            SELECT u.id, u.username, points, country
+            FROM users u
+            WHERE u.id != ? 
+            AND u.id NOT IN (
+                SELECT CASE WHEN user_id_1 = ? THEN user_id_2 ELSE user_id_1 END
+                FROM friendships
+                WHERE user_id_1 = ? OR user_id_2 = ?
+            )
+            ORDER BY RANDOM()
+            LIMIT 3
+        `, [userId, userId, userId, userId]);
+        res.json(recommended);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

@@ -14,27 +14,27 @@ export default function Home() {
             {/* 1. Pastel "Astron" Hero */}
             <section className="astron-hero container">
                 <div className="hero-text-side fade-in-up delay-100">
-                    <span className="overline">PROJECT WISE • 2025</span>
-                    <h1>THE OZONE <br /> INITIATIVE</h1>
+                    <span className="overline">{t('home_overline')}</span>
+                    <h1 dangerouslySetInnerHTML={{ __html: t('home_title') }}></h1>
                     <p>
-                        {t('home_subtitle') || "Join the global mission to heal our atmosphere. We combine education, gamification, and community action to make a real difference."}
+                        {t('home_subtitle')}
                     </p>
 
                     <div className="hero-actions">
                         <Link to="/informacion" className="btn btn-primary btn-lg shine-effect" style={{ marginLeft: '-40px' }}>
-                            Start Mission <FaArrowRight />
+                            {t('home_btn_start')} <FaArrowRight />
                         </Link>
                         <Link to="/challenges" className="btn btn-secondary btn-lg" style={{ marginLeft: '-40px' }}>
-                            View Challenges
+                            {t('home_btn_challenges')}
                         </Link>
                     </div>
 
                     <div className="hero-stats-mini">
                         <div className="mini-stat">
-                            <strong>2.9k+</strong> <span>Guardians</span>
+                            <strong>2.9k+</strong> <span>{t('stat_guardians')}</span>
                         </div>
                         <div className="mini-stat">
-                            <strong>50%</strong> <span>Recovery</span>
+                            <strong>50%</strong> <span>{t('stat_recovery')}</span>
                         </div>
                     </div>
                 </div>
@@ -44,18 +44,18 @@ export default function Home() {
                     <div className="planet-circle-pastel">
                         <div className="planet-inner">
                             <span className="big-stat">-50%</span>
-                            <span className="stat-desc">Ozone Loss</span>
+                            <span className="stat-desc">{t('stat_ozone_loss')}</span>
                         </div>
                     </div>
                     {/* Floating Cards */}
                     <div className="floating-card c1">
-                        <FaLeaf /> <span>Eco-Friendly</span>
+                        <FaLeaf /> <span>{t('card_eco')}</span>
                     </div>
                     <div className="floating-card c2">
-                        <FaUsers /> <span>Community</span>
+                        <FaUsers /> <span>{t('card_community')}</span>
                     </div>
                     <div className="floating-card c3">
-                        <FaShieldAlt /> <span>Verified</span>
+                        <FaShieldAlt /> <span>{t('card_verified')}</span>
                     </div>
                 </div>
             </section>
@@ -66,38 +66,37 @@ export default function Home() {
                     <div className="glass-collage">
                         <div className="collage-card main">
                             <FaGlobeAmericas className="collage-icon" />
-                            <h3>Global Impact</h3>
+                            <h3>{t('impact_global')}</h3>
                         </div>
                         <div className="collage-card sub1">
-                            <span>+120 Countries</span>
+                            <span>{t('impact_countries')}</span>
                         </div>
                         <div className="collage-card sub2">
-                            <span>Real-time Data</span>
+                            <span>{t('impact_data')}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="split-content fade-in-up delay-200">
-                    <span className="section-subtitle">Who We Are</span>
-                    <h2>A Community of <br /> Guardians</h2>
+                    <span className="section-subtitle">{t('who_we_are')}</span>
+                    <h2 dangerouslySetInnerHTML={{ __html: t('community_guardians') }}></h2>
                     <p>
-                        We are a collective of individuals committed to restoring the ozone layer.
-                        Through daily challenges and collective action, we turn small habits into global impact.
+                        {t('about_text')}
                     </p>
 
                     <div className="feature-grid">
                         <div className="feature-item">
                             <div className="f-icon"><FaUsers /></div>
                             <div className="f-text">
-                                <strong>Community Driven</strong>
-                                <span>Join thousands of others.</span>
+                                <strong>{t('feature_community')}</strong>
+                                <span>{t('feature_community_desc')}</span>
                             </div>
                         </div>
                         <div className="feature-item">
                             <div className="f-icon"><FaChartLine /></div>
                             <div className="f-text">
-                                <strong>Data Backed</strong>
-                                <span>Verified scientific sources.</span>
+                                <strong>{t('feature_data')}</strong>
+                                <span>{t('feature_data_desc')}</span>
                             </div>
                         </div>
                     </div>
@@ -111,22 +110,22 @@ export default function Home() {
                     <div className="stat-card-glass pop-in delay-100">
                         <div className="stat-icon-bg purple"><FaUsers /></div>
                         <span className="stat-number">2,950+</span>
-                        <span className="stat-label">Active Guardians</span>
+                        <span className="stat-label">{t('active_guardians')}</span>
                     </div>
                     <div className="stat-card-glass pop-in delay-200">
                         <div className="stat-icon-bg pink"><FaChartLine /></div>
                         <span className="stat-number">12</span>
-                        <span className="stat-label">Years To Recovery</span>
+                        <span className="stat-label">{t('years_recovery')}</span>
                     </div>
                     <div className="stat-card-glass pop-in delay-300">
                         <div className="stat-icon-bg blue"><FaGlobeAmericas /></div>
                         <span className="stat-number">5</span>
-                        <span className="stat-label">Continents</span>
+                        <span className="stat-label">{t('continents')}</span>
                     </div>
                     <div className="stat-card-glass pop-in delay-400">
                         <div className="stat-icon-bg green"><FaShieldAlt /></div>
                         <span className="stat-number">24/7</span>
-                        <span className="stat-label">Monitoring</span>
+                        <span className="stat-label">{t('monitoring')}</span>
                     </div>
                 </div>
             </section>
@@ -137,10 +136,10 @@ export default function Home() {
                     <div className="cta-portal-glass scale-up-on-scroll">
                         <div className="portal-content">
                             <div className="icon-crown"><FaRocket /></div>
-                            <h2>Ready to explore with us?</h2>
-                            <p>Start your journey, earn rewards, and protect the planet.</p>
+                            <h2>{t('home_ready')}</h2>
+                            <p>{t('home_start_journey')}</p>
                             <Link to="/challenges" className="btn btn-primary btn-xl shine-effect">
-                                Join Now <FaArrowRight />
+                                {t('home_join_now')} <FaArrowRight />
                             </Link>
                         </div>
                         {/* Decorative background elements inside the glass */}

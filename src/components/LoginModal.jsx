@@ -2,14 +2,14 @@ import { useState } from 'react';
 import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import './Modal.css'; // Shared styles? We'll create or use existing
+import './Modal.css';
 
 export default function LoginModal({ onClose, onSwitchToRegister }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const { login } = useAuth();
-    const { t } = useLanguage(); // Assuming we have translation keys, or will fallback
+    const { t } = useLanguage();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -39,11 +39,11 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
         <div className="modal-overlay">
             <div className="modal-content">
                 <button className="close-btn" onClick={onClose}>&times;</button>
-                <h2>Login</h2>
+                <h2>{t('modal_login_title')}</h2>
                 {error && <p className="error-msg">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Username</label>
+                        <label>{t('label_username')}</label>
                         <input
                             type="text"
                             value={username}
@@ -52,7 +52,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Password</label>
+                        <label>{t('label_password')}</label>
                         <input
                             type="password"
                             value={password}
@@ -60,9 +60,9 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary">Login</button>
+                    <button type="submit" className="btn btn-primary">{t('btn_login')}</button>
                     <p className="switch-auth">
-                        Don't have an account? <button type="button" className="link-btn" onClick={onSwitchToRegister}>Register</button>
+                        {t('text_no_account')} <button type="button" className="link-btn" onClick={onSwitchToRegister}>{t('link_register')}</button>
                     </p>
                 </form>
             </div>

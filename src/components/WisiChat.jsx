@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import API_URL from '../api';
+import { useLanguage } from '../context/LanguageContext';
 import { FaPaperPlane, FaSmile, FaTimes } from 'react-icons/fa';
 import WisiAvatar from '../assets/images/wisi.png';
 import './WisiChat.css';
 
 const WisiChat = () => {
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+
+    // Note: This initial state is set on mount. Dynamic language switching won't retroactively translate history.
     const [messages, setMessages] = useState([
-        { role: 'system', content: '¡Hola! Soy Wisi, tu experto en sostenibilidad. ¿En qué puedo ayudarte hoy? [badge:10]' }
+        { role: 'system', content: t('wisi_welcome') }
     ]);
     const [input, setInput] = useState('');
     const [showBadges, setShowBadges] = useState(false);
@@ -37,7 +41,8 @@ const WisiChat = () => {
             const apiMessages = messages.concat(userMessage).map(m => ({
                 role: m.role === 'system' ? 'assistant' : m.role,
                 content: m.content
-            })).filter(m => m.role !== 'system' || m.content.startsWith('¡Hola!'));
+            })).filter(m => m.role !== 'system' || m.content.startsWith('¡Hola!') || m.content.startsWith('Hello!') || m.content.startsWith('Ciao!') || m.content.startsWith('Salut!'));
+            // Better to rely on role, but 'system' here mimics assistant greeting.
 
             const response = await fetch(`${API_URL}/api/chat/completions`, {
                 method: 'POST',
@@ -52,12 +57,12 @@ const WisiChat = () => {
             if (data.message) {
                 setMessages(prev => [...prev, { role: 'assistant', content: data.message.content }]);
             } else {
-                setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, tuve un problema al pensar. ¿Puedes repetirlo?' }]);
+                setMessages(prev => [...prev, { role: 'assistant', content: t('wisi_error_think') }]);
             }
 
         } catch (error) {
             console.error('Error sending message:', error);
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, no puedo conectar con el servidor en este momento.' }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: t('wisi_error_server') }]);
         } finally {
             setIsLoading(false);
         }
@@ -92,7 +97,7 @@ const WisiChat = () => {
                 <div className="wisi-header">
                     <h3>
                         <img src={WisiAvatar} alt="Wisi" style={{ width: '24px', height: '24px', borderRadius: '50%' }} />
-                        Chat con Wisi
+                        {t('wisi_title')}
                     </h3>
                     <button className="wisi-close" onClick={() => setIsOpen(false)}>
                         <FaTimes />
@@ -144,7 +149,7 @@ const WisiChat = () => {
                     <input
                         type="text"
                         className="wisi-input"
-                        placeholder="Escribe tu mensaje..."
+                        placeholder={t('wisi_placeholder')}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
@@ -157,7 +162,7 @@ const WisiChat = () => {
             </div>
 
             {/* Trigger Button */}
-            <div className="wisi-trigger" onClick={() => setIsOpen(!isOpen)} title="Habla con Wisi">
+            <div className="wisi-trigger" onClick={() => setIsOpen(!isOpen)} title={t('wisi_tooltip')}>
                 <img src={WisiAvatar} alt="Wisi AI" className="wisi-avatar" />
             </div>
         </div>

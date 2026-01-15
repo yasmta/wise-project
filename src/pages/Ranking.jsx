@@ -74,7 +74,7 @@ export default function Ranking() {
 
             <header className="page-header">
                 <h1>{t('rank_title')}</h1>
-                <p>Compite con la élite de los protectores del planeta.</p>
+                <p>{t('rank_subtitle')}</p>
             </header>
 
             {/* MAIN LEAGUE CARD - Unified Structure */}
@@ -83,16 +83,16 @@ export default function Ranking() {
                 {/* 1. Header & Controls */}
                 <div className="league-header">
                     <div className="league-info">
-                        <span className="league-badge">Liga Diamante</span>
-                        <h3>Temporada 1</h3>
+                        <span className="league-badge">{t('rank_league')}</span>
+                        <h3>{t('rank_season')}</h3>
                     </div>
                 </div>
 
                 {/* EMPTY STATE */}
                 {safeUsers.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
-                        <h3>No hay participantes aún</h3>
-                        <p>¡Sé el primero en completar un reto!</p>
+                        <h3>{t('rank_no_participants')}</h3>
+                        <p>{t('rank_be_first')}</p>
                     </div>
                 )}
 
@@ -154,8 +154,8 @@ export default function Ranking() {
                         <thead>
                             <tr>
                                 <th width="10%">#</th>
-                                <th>Usuario</th>
-                                <th className="text-right">XP Total</th>
+                                <th>{t('rank_col_user')}</th>
+                                <th className="text-right">{t('rank_col_xp')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -187,13 +187,13 @@ export default function Ranking() {
                 <div className="my-rank-info">
                     <div className="u-rank">#{myRank}</div>
                     <div className="u-details">
-                        <span className="u-name-self">{user?.username || 'Invitado'}</span>
-                        <span className="u-pts">{currentPoints} XP (Nvl {currentLevel})</span>
+                        <span className="u-name-self">{user?.username || t('rank_guest')}</span>
+                        <span className="u-pts">{currentPoints} XP ({t('rank_level_short')} {currentLevel})</span>
                     </div>
                 </div>
                 {user && (
                     <div className="next-rank-tip">
-                        <FaArrowUp /> A {pointsToNext} XP del Nivel {currentLevel + 1}
+                        <FaArrowUp /> {t('rank_xp_gap').replace('{points}', pointsToNext).replace('{level}', currentLevel + 1)}
                     </div>
                 )}
             </div>

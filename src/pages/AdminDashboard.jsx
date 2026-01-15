@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import API_URL from '../api';
 import './AdminDashboard.css';
 
 export default function AdminDashboard() {
     const { user, isAuthenticated } = useAuth();
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('users');
     const [users, setUsers] = useState([]);
@@ -203,73 +205,73 @@ export default function AdminDashboard() {
 
     return (
         <div className="admin-container fade-in-up">
-            <h1 className="admin-title">Admin Dashboard</h1>
+            <h1 className="admin-title">{t('admin_title')}</h1>
 
             <div className="admin-tabs">
                 <button
                     className={activeTab === 'users' ? 'active' : ''}
                     onClick={() => setActiveTab('users')}
                 >
-                    Users
+                    {t('admin_tab_users')}
                 </button>
                 <button
                     className={activeTab === 'posts' ? 'active' : ''}
                     onClick={() => setActiveTab('posts')}
                 >
-                    Posts
+                    {t('admin_tab_posts')}
                 </button>
                 <button
                     className={activeTab === 'challenges' ? 'active' : ''}
                     onClick={() => setActiveTab('challenges')}
                 >
-                    Challenges
+                    {t('admin_tab_challenges')}
                 </button>
             </div>
 
             <div className="admin-content">
                 {activeTab === 'users' && (
                     <div className="admin-section fade-in">
-                        <h2>Create User</h2>
+                        <h2>{t('admin_create_user')}</h2>
                         <form onSubmit={handleCreateUser} className="admin-form">
                             <input
-                                placeholder="Username"
+                                placeholder={t('admin_ph_username')}
                                 value={newUser.username}
                                 onChange={e => setNewUser({ ...newUser, username: e.target.value })}
                                 required
                             />
                             <input
-                                placeholder="Password"
+                                placeholder={t('admin_ph_password')}
                                 type="password"
                                 value={newUser.password}
                                 onChange={e => setNewUser({ ...newUser, password: e.target.value })}
                                 required
                             />
                             <input
-                                placeholder="Email"
+                                placeholder={t('admin_ph_email')}
                                 type="email"
                                 value={newUser.email}
                                 onChange={e => setNewUser({ ...newUser, email: e.target.value })}
                                 required
                             />
                             <input
-                                placeholder="Country"
+                                placeholder={t('admin_ph_country')}
                                 value={newUser.country}
                                 onChange={e => setNewUser({ ...newUser, country: e.target.value })}
                                 required
                             />
-                            <button type="submit" className="btn-primary">Create</button>
+                            <button type="submit" className="btn-primary">{t('admin_btn_create')}</button>
                         </form>
 
-                        <h2>User List</h2>
+                        <h2>{t('admin_list_users')}</h2>
                         <div className="table-wrapper">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Username</th>
-                                        <th>Email</th>
-                                        <th>Points</th>
-                                        <th>Actions</th>
+                                        <th>{t('admin_col_id')}</th>
+                                        <th>{t('admin_col_user')}</th>
+                                        <th>{t('admin_col_email')}</th>
+                                        <th>{t('admin_col_points')}</th>
+                                        <th>{t('admin_col_actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -283,16 +285,16 @@ export default function AdminDashboard() {
                                                     <span>{u.points}</span>
                                                     <input
                                                         type="number"
-                                                        placeholder="New"
+                                                        placeholder={t('admin_ph_new')}
                                                         value={pointsUpdate[u.id] || ''}
                                                         onChange={(e) => setPointsUpdate({ ...pointsUpdate, [u.id]: e.target.value })}
                                                     />
-                                                    <button onClick={() => handleUpdatePoints(u.id)}>Save</button>
+                                                    <button onClick={() => handleUpdatePoints(u.id)}>{t('admin_btn_save')}</button>
                                                 </div>
                                             </td>
                                             <td>
                                                 <button className="delete-btn" onClick={() => handleDeleteUser(u.id)}>
-                                                    Delete
+                                                    {t('admin_btn_delete')}
                                                 </button>
                                             </td>
                                         </tr>
@@ -305,16 +307,16 @@ export default function AdminDashboard() {
 
                 {activeTab === 'posts' && (
                     <div className="admin-section fade-in">
-                        <h2>All Posts</h2>
+                        <h2>{t('admin_all_posts')}</h2>
                         <div className="table-wrapper">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Author</th>
-                                        <th>Content</th>
-                                        <th>Date</th>
-                                        <th>Actions</th>
+                                        <th>{t('admin_col_id')}</th>
+                                        <th>{t('admin_col_author')}</th>
+                                        <th>{t('admin_col_content')}</th>
+                                        <th>{t('admin_col_date')}</th>
+                                        <th>{t('admin_col_actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -326,7 +328,7 @@ export default function AdminDashboard() {
                                             <td>{new Date(p.created_at).toLocaleString()}</td>
                                             <td>
                                                 <button className="delete-btn" onClick={() => handleDeletePost(p.id)}>
-                                                    Delete
+                                                    {t('admin_btn_delete')}
                                                 </button>
                                             </td>
                                         </tr>
@@ -339,25 +341,25 @@ export default function AdminDashboard() {
 
                 {activeTab === 'challenges' && (
                     <div className="admin-section fade-in">
-                        <h2>Create Challenge</h2>
+                        <h2>{t('admin_create_challenge')}</h2>
                         <form onSubmit={handleCreateChallenge} className="admin-form vertical">
                             <div className="form-row">
                                 <input
-                                    placeholder="Title"
+                                    placeholder={t('admin_ph_title')}
                                     value={newChallenge.title}
                                     onChange={e => setNewChallenge({ ...newChallenge, title: e.target.value })}
                                     required
                                 />
                                 <input
                                     type="number"
-                                    placeholder="Points"
+                                    placeholder={t('admin_ph_points')}
                                     value={newChallenge.points}
                                     onChange={e => setNewChallenge({ ...newChallenge, points: e.target.value })}
                                     required
                                 />
                             </div>
                             <textarea
-                                placeholder="Description"
+                                placeholder={t('admin_ph_description')}
                                 value={newChallenge.description}
                                 onChange={e => setNewChallenge({ ...newChallenge, description: e.target.value })}
                             />
@@ -394,25 +396,25 @@ export default function AdminDashboard() {
                                     value={newChallenge.periodicity}
                                     onChange={e => setNewChallenge({ ...newChallenge, periodicity: e.target.value })}
                                 >
-                                    <option value="once">Once</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
+                                    <option value="once">Una vez</option>
+                                    <option value="weekly">Semanal</option>
+                                    <option value="monthly">Mensual</option>
                                 </select>
                             </div>
-                            <button type="submit" className="btn-primary">Add Challenge</button>
+                            <button type="submit" className="btn-primary">{t('admin_btn_add_challenge')}</button>
                         </form>
 
-                        <h2>All Challenges</h2>
+                        <h2>{t('admin_all_challenges')}</h2>
                         <div className="table-wrapper">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Title</th>
-                                        <th>Category</th>
-                                        <th>Points</th>
-                                        <th>Type</th>
-                                        <th>Actions</th>
+                                        <th>{t('admin_col_id')}</th>
+                                        <th>{t('admin_col_title')}</th>
+                                        <th>{t('admin_col_category')}</th>
+                                        <th>{t('admin_col_points')}</th>
+                                        <th>{t('admin_col_type')}</th>
+                                        <th>{t('admin_col_actions')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -425,7 +427,7 @@ export default function AdminDashboard() {
                                             <td>{c.verification_type}</td>
                                             <td>
                                                 <button className="delete-btn" onClick={() => handleDeleteChallenge(c.id)}>
-                                                    Delete
+                                                    {t('admin_btn_delete')}
                                                 </button>
                                             </td>
                                         </tr>

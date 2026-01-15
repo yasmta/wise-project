@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { FaLock } from 'react-icons/fa';
 
 export default function BadgeList({ targetUserId }) { // targetUserId allows viewing others' badges in future
+    const { t } = useLanguage();
     const { user } = useAuth();
     const [badges, setBadges] = useState([]);
     const [userBadges, setUserBadges] = useState([]);
@@ -43,18 +45,18 @@ export default function BadgeList({ targetUserId }) { // targetUserId allows vie
         }
     };
 
-    if (loading) return <div>Cargando insignias...</div>;
+    if (loading) return <div>{t('badge_loading')}</div>;
 
     // Grouping logic
     const categories = [
-        { id: 'all', label: 'Todas' },
-        { id: 'learning', label: 'Aprendizaje' },
-        { id: 'home', label: 'Hogar' },
-        { id: 'habits', label: 'Hábitos' },
-        { id: 'community', label: 'Comunidad' },
-        { id: 'action', label: 'Acción' },
-        { id: 'company', label: 'Empresas' },
-        { id: 'special', label: 'Especiales' },
+        { id: 'all', label: t('badge_cat_all') },
+        { id: 'learning', label: t('badge_cat_learning') },
+        { id: 'home', label: t('badge_cat_home') },
+        { id: 'habits', label: t('badge_cat_habits') },
+        { id: 'community', label: t('badge_cat_community') },
+        { id: 'action', label: t('badge_cat_action') },
+        { id: 'company', label: t('badge_cat_company') },
+        { id: 'special', label: t('badge_cat_special') },
     ];
 
     const filteredBadges = activeCategory === 'all'
