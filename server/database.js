@@ -98,7 +98,7 @@ export const getDb = async () => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             description TEXT,
-            questions TEXT, -- JSON string
+            questions TEXT,
             order_index INTEGER
         );
 

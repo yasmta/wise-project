@@ -53,10 +53,18 @@ export default function Header() {
 
                     <div className="header-controls">
                         {isAuthenticated ? (
-                            <div className="user-info">
-                                <span>{user.username} <small>({user.points} pts)</small></span>
-                                <button onClick={logout} className="btn-logout">Logout</button>
-                            </div>
+                            <NavLink to={`/profile/${user.username}`} className="user-profile-link">
+                                <div className="user-avatar-container">
+                                    {user.username[0].toUpperCase()}
+                                </div>
+                                <div className="user-meta">
+                                    <span className="user-name">{user.username}</span>
+                                    <span className="user-points-badge">
+                                        <span className="points-dot"></span>
+                                        {user.points} XP
+                                    </span>
+                                </div>
+                            </NavLink>
                         ) : (
                             <div className="auth-buttons">
                                 <button onClick={() => setShowLogin(true)} className="btn-auth">Login</button>

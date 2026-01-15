@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
 import {
-    FaBiking, FaPlug, FaShoppingBag, FaLeaf, FaMedal, FaRocket, FaStar, FaBolt, FaGlobeAmericas, FaCheckCircle, FaBuilding, FaUsers, FaGraduationCap
+    FaBiking, FaPlug, FaShoppingBag, FaLeaf, FaMedal, FaRocket, FaStar, FaBolt, FaGlobeAmericas, FaCheckCircle, FaBuilding, FaUsers, FaGraduationCap, FaShareAlt, FaTimes
 } from 'react-icons/fa';
 import './Challenges.css';
 
@@ -17,12 +18,15 @@ export default function Challenges() {
     const [activeQuiz, setActiveQuiz] = useState(null);
     const [quizAnswers, setQuizAnswers] = useState([]);
     const [quizResult, setQuizResult] = useState(null);
+    const [currentQIndex, setCurrentQIndex] = useState(0); // For step-by-step
 
     // Modal State
     const [selectedMission, setSelectedMission] = useState(null);
     const [proofFile, setProofFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [shareModal, setShareModal] = useState(null); // { type: 'quiz'|'mission', data: ... }
+    const [shareMessage, setShareMessage] = useState('');
 
     const { user, isAuthenticated, updatePoints } = useAuth();
 
@@ -37,8 +41,8 @@ export default function Challenges() {
             try {
                 const token = localStorage.getItem('token');
                 const [cRes, qRes] = await Promise.all([
-                    fetch('http://localhost:3001/api/challenges', { headers: { 'Authorization': `Bearer ${token}` } }),
-                    fetch('http://localhost:3001/api/quizzes', { headers: { 'Authorization': `Bearer ${token}` } })
+                    fetch(`${API_URL}/api/challenges`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API_URL}/api/quizzes`, { headers: { 'Authorization': `Bearer ${token}` } })
                 ]);
 
                 if (cRes.ok) setChallenges(await cRes.json());
@@ -94,6 +98,165 @@ export default function Challenges() {
         }
     };
 
+
+
+    // Helper: File to Base64
+    const fileToBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
+    const handleShareAchievement = async () => {
+        if (!shareModal) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            let payload = {
+                type: 'challenge_repost',
+                type: 'challenge_repost',
+                challengeTitle: shareModal.title,
+                challengeDescription: shareModal.description,
+                challengeCategory: shareModal.category,
+                message: shareMessage || (shareModal.type === 'quiz' ? '¡He superado este quiz!' : '¡Misión cumplida!'),
+                verifType: shareModal.verification_type,
+                points: shareModal.points
+            };
+
+            if (shareModal.type === 'quiz') {
+                payload.record = `${shareModal.score}/${shareModal.total}`;
+            } else if (shareModal.type === 'mission') {
+                if (shareModal.verification_type === 'link') {
+                    payload.link = shareModal.proof;
+                } else if (shareModal.verification_type === 'photo' && shareModal.proofFile) {
+                    // Convert file to base64
+                    payload.image = await fileToBase64(shareModal.proofFile);
+                }
+            }
+
+            console.log('Sending share payload:', payload);
+
+            const res = await fetch(`${API_URL}/api/community/posts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ content: JSON.stringify(payload) })
+            });
+
+            if (res.ok) {
+                console.log("Share successful");
+                alert("¡Publicación compartida con éxito en la Comunidad!");
+                setShareModal(null);
+                setShareMessage('');
+            } else {
+                const errText = await res.text();
+                console.error("Share failed", errText);
+                alert("Error al compartir: " + errText);
+            }
+        } catch (error) {
+            console.error("Error sharing:", error);
+            alert("Error de conexión al compartir.");
+        }
+    };
+
+    // Quiz Helper Functions
+    const formatUnlocksIn = (ms) => {
+        const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
+        return `Desbloquea en ${days} días`;
+    };
+
+    const handleStartQuiz = (quiz) => {
+        if (quiz.status === 'locked') return;
+        setActiveQuiz(quiz);
+        setQuizAnswers(new Array(quiz.questions.length).fill(null));
+        setQuizResult(null);
+        setCurrentQIndex(0);
+    };
+
+    const handleAnswerQuiz = (qIdx, oIdx) => {
+        setQuizAnswers(prev => {
+            const newAns = [...prev];
+            newAns[qIdx] = oIdx;
+            return newAns;
+        });
+
+        // Auto-advance after small delay
+        setTimeout(() => {
+            if (currentQIndex < activeQuiz.questions.length - 1) {
+                setCurrentQIndex(prev => prev + 1);
+            }
+        }, 400);
+    };
+
+    const handleSubmitQuiz = async () => {
+        console.log("Submit Quiz Clicked. Answers:", quizAnswers);
+        setIsSubmitting(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/api/quizzes/${activeQuiz.id}/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ answers: quizAnswers })
+            });
+
+            console.log("Submit Response Status:", res.status);
+
+            if (res.ok) {
+                const result = await res.json();
+                console.log("Submit Result:", result);
+                setQuizResult(result);
+                setQuizResult(result);
+                setShowSuccess(true); // Trigger success view
+
+                // Add to share queue
+                if (result.success) {
+                    setShareModal({
+                        type: 'quiz',
+                        title: activeQuiz.title,
+                        description: activeQuiz.description,
+                        category: 'education', // Quizzes usually education
+                        score: result.score,
+                        total: result.total,
+                        points: result.pointsAwarded,
+                        points: result.pointsAwarded,
+                        verification_type: 'quiz'
+                    });
+                    setShareMessage('¡He superado este quiz!');
+                }
+
+                // Refresh quizzes to update status
+                const qRes = await fetch(`${API_URL}/api/quizzes`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (qRes.ok) setQuizzes(await qRes.json());
+
+                // If passed, update user points locally too
+                if (result.success) {
+                    if (result.pointsAwarded > 0) {
+                        await updatePoints(userPoints + result.pointsAwarded);
+                    }
+
+                    // Update the challenge status in the main grid immediately
+                    if (selectedMission) {
+                        setChallenges(prev => prev.map(c =>
+                            c.id === selectedMission.id ? { ...c, status: 'approved' } : c
+                        ));
+                    }
+                }
+            } else {
+                console.error("Submit failed with status:", res.status);
+            }
+        } catch (err) {
+            console.error("Submit Error:", err);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     if (loading) return <div className="container" style={{ textAlign: 'center', padding: '10rem' }}><h1>Cargando Misiones...</h1></div>;
 
     if (inQuizMode) {
@@ -135,6 +298,29 @@ export default function Challenges() {
                                 <h2>{quizResult.success ? '¡Excelente Trabajo!' : 'Casi lo tienes...'}</h2>
                                 <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>Puntuación: {quizResult.score} / {quizResult.total}</p>
                                 <button className="btn-primary" onClick={() => { setActiveQuiz(null); setInQuizMode(false); }}>Cerrar</button>
+
+                                <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem', textAlign: 'left' }}>
+                                    <p style={{ marginBottom: '0.8rem', fontSize: '0.95rem', color: '#64748b', fontWeight: '500' }}>¡Presume de tu resultado!</p>
+                                    <textarea
+                                        value={shareMessage}
+                                        onChange={e => setShareMessage(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.8rem',
+                                            borderRadius: '12px',
+                                            border: '1px solid #cbd5e1',
+                                            marginBottom: '1rem',
+                                            resize: 'none',
+                                            fontFamily: 'inherit',
+                                            fontSize: '0.95rem'
+                                        }}
+                                        rows={2}
+                                        placeholder="¡He superado este quiz! 🎓"
+                                    />
+                                    <button className="btn-share-gold" onClick={handleShareAchievement}>
+                                        <FaShareAlt /> Compartir en la Comunidad
+                                    </button>
+                                </div>
                             </div>
                         ) : (
                             <>
@@ -177,12 +363,52 @@ export default function Challenges() {
         );
     }
 
+
+
+
+
+
+
+
     const handleOpenMission = (challenge) => {
+        console.log("Handle Open Mission Clicked:", challenge);
         if (challenge.status === 'approved') return;
-        if (challenge.verification_type === 'quiz') {
-            setInQuizMode(true);
-            return;
+
+        // Robust check for quiz type
+        const isQuiz = challenge.verification_type === 'quiz' ||
+            challenge.title.toLowerCase().includes('quiz');
+
+        if (isQuiz) {
+            console.log("Preparing Quiz Modal for challenge:", challenge.title, "Quizzes Available:", quizzes.length);
+
+            if (!quizzes || quizzes.length === 0) {
+                console.error("No quizzes available to load!");
+                // Fallback or show error? For now, we open modal but maybe set a flag
+            } else {
+                // Find the first unlocked or next quiz
+                // We assume quizzes are sorted by order_index
+                let nextQuiz = quizzes.find(q => q.status === 'unlocked') ||
+                    quizzes.find(q => q.status !== 'completed') ||
+                    quizzes[quizzes.length - 1];
+
+                // If the found quiz is locked (e.g. waiting period), show the previous completed one to avoid empty modal
+                if (nextQuiz && nextQuiz.status === 'locked') {
+                    const currentIndex = quizzes.indexOf(nextQuiz);
+                    if (currentIndex > 0) {
+                        nextQuiz = quizzes[currentIndex - 1];
+                    }
+                }
+
+                if (nextQuiz) {
+                    console.log("Starting quiz:", nextQuiz.title, "Status:", nextQuiz.status);
+                    handleStartQuiz(nextQuiz);
+                } else {
+                    console.error("Could not determine active quiz");
+                }
+            }
         }
+
+        console.log("Opening Modal");
         setSelectedMission(challenge);
         setProofFile(null);
         setShowSuccess(false);
@@ -196,16 +422,28 @@ export default function Challenges() {
 
     const handleSubmitMission = async () => {
         if (!selectedMission) return;
-        if (selectedMission.verification_type !== 'auto' && !proofFile && selectedMission.verification_type !== 'link' && selectedMission.verification_type !== 'quiz') {
-            if (selectedMission.verification_type === 'photo' && !proofFile) return;
+
+        // Validation
+        if (selectedMission.verification_type === 'link') {
+            if (!proofFile || typeof proofFile !== 'string' || proofFile.length < 5) return;
+        }
+        if (selectedMission.verification_type === 'photo') {
+            if (!proofFile) return;
         }
 
         setIsSubmitting(true);
         try {
-            await new Promise(r => setTimeout(r, 1500));
+            // Simulate AI Analysis time
+            await new Promise(r => setTimeout(r, 2000));
 
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3001/api/challenges/submit', {
+
+            // Prepare proof content
+            let contentToSend = 'auto_verified';
+            if (selectedMission.verification_type === 'link') contentToSend = proofFile;
+            if (selectedMission.verification_type === 'photo') contentToSend = proofFile.name || 'photo_upload';
+
+            const res = await fetch(`${API_URL}/api/challenges/submit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -213,7 +451,7 @@ export default function Challenges() {
                 },
                 body: JSON.stringify({
                     challengeId: selectedMission.id,
-                    proofContent: 'mock_proof_blob'
+                    proofContent: contentToSend
                 })
             });
 
@@ -221,15 +459,24 @@ export default function Challenges() {
                 const data = await res.json();
                 setShowSuccess(true);
 
+                // Add to share queue
+                setShareModal({
+                    type: 'mission',
+                    title: selectedMission.title,
+                    description: selectedMission.description,
+                    category: selectedMission.category,
+                    points: selectedMission.points,
+                    verification_type: selectedMission.verification_type,
+                    proof: selectedMission.verification_type === 'link' ? proofFile : null,
+                    proof: selectedMission.verification_type === 'link' ? proofFile : null,
+                    proofFile: selectedMission.verification_type === 'photo' ? proofFile : null
+                });
+                setShareMessage('¡Misión cumplida!');
+
                 setChallenges(prev => prev.map(c =>
                     c.id === selectedMission.id ? { ...c, status: 'approved' } : c
                 ));
                 await updatePoints(userPoints + selectedMission.points);
-
-                setTimeout(() => {
-                    setSelectedMission(null);
-                    setShowSuccess(false);
-                }, 2000);
             }
         } catch (err) {
             console.error(err);
@@ -283,6 +530,7 @@ export default function Challenges() {
                     </div>
                 </div>
             </div>
+
 
             <div className="challenges-header">
                 <h1>Centro de Misiones</h1>
@@ -366,44 +614,228 @@ export default function Challenges() {
 
             {/* MODAL */}
             {selectedMission && (
-                <div className="modal-overlay" onClick={() => setSelectedMission(null)}>
-                    <div className="modal-content zoom-in" onClick={e => e.stopPropagation()} style={{ background: 'white', color: '#1e293b' }}>
+                <div className="modal-overlay" onClick={() => !isSubmitting && setSelectedMission(null)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
                         {!showSuccess ? (
                             <>
-                                <h2 style={{ marginBottom: '0.5rem' }}>{selectedMission.title}</h2>
-                                <p style={{ marginBottom: '1.5rem', color: '#64748b' }}>
-                                    {selectedMission.verification_type === 'quiz' ? 'Completa el quiz para verificar.' : 'Sube tu evidencia para que la IA la verifique.'}
-                                </p>
-
-                                {selectedMission.verification_type === 'photo' && (
-                                    <label style={{ display: 'block', padding: '2rem', border: '2px dashed #cbd5e1', borderRadius: '1rem', textAlign: 'center', cursor: 'pointer', marginBottom: '1.5rem' }}>
-                                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
-                                        <div>{proofFile ? proofFile.name : 'Subir Foto'}</div>
-                                        <input type="file" hidden onChange={handleFileChange} />
-                                    </label>
+                                {selectedMission.verification_type === 'quiz' && activeQuiz ? (
+                                    <div style={{ marginBottom: '1rem' }}>
+                                        <h2 style={{ marginBottom: '0.2rem', fontSize: '1.4rem' }}>{activeQuiz.title}</h2>
+                                        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>{activeQuiz.description}</p>
+                                    </div>
+                                ) : (
+                                    <h2 style={{ marginBottom: '0.5rem' }}>{selectedMission.title}</h2>
                                 )}
 
-                                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                                    <button className="btn-secondary" onClick={() => setSelectedMission(null)}>Cancelar</button>
-                                    <button
-                                        className="btn-primary"
-                                        onClick={handleSubmitMission}
-                                        disabled={isSubmitting}
-                                    >
-                                        {isSubmitting ? 'Verificando IA...' : 'Enviar'}
-                                    </button>
-                                </div>
+                                {/* Quiz Logic */}
+                                {selectedMission.verification_type === 'quiz' && activeQuiz ? (
+                                    <div className="quiz-modal-container">
+                                        <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '12px' }}>
+                                            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: '#475569' }}>{activeQuiz.title}</h3>
+                                            <p style={{ fontSize: '0.9rem', color: '#64748b' }}>{activeQuiz.description}</p>
+                                        </div>
+
+                                        {/* Progress Bar */}
+                                        <div className="quiz-progress-container" style={{ marginBottom: '1.5rem' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#64748b' }}>
+                                                <span>Pregunta {currentQIndex + 1} de {activeQuiz.questions.length}</span>
+                                                <span>{Math.round(((currentQIndex + 1) / activeQuiz.questions.length) * 100)}%</span>
+                                            </div>
+                                            <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+                                                <div style={{
+                                                    height: '100%',
+                                                    background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
+                                                    width: `${((currentQIndex + 1) / activeQuiz.questions.length) * 100}%`,
+                                                    transition: 'width 0.4s ease'
+                                                }}></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="quiz-question-step fade-in-slide" key={currentQIndex}>
+                                            <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', color: '#1e293b' }}>
+                                                {activeQuiz.questions[currentQIndex].question}
+                                            </h3>
+
+                                            <div className="q-options" style={{ display: 'grid', gap: '0.8rem' }}>
+                                                {activeQuiz.questions[currentQIndex].options.map((opt, oIdx) => {
+                                                    const isSelected = quizAnswers[currentQIndex] === oIdx;
+                                                    return (
+                                                        <button
+                                                            key={oIdx}
+                                                            className={`opt-btn ${isSelected ? 'selected' : ''}`}
+                                                            onClick={() => handleAnswerQuiz(currentQIndex, oIdx)}
+                                                            style={{
+                                                                padding: '1rem',
+                                                                borderRadius: '12px',
+                                                                border: isSelected ? '2px solid var(--color-primary)' : '1px solid #cbd5e1',
+                                                                background: isSelected ? '#f5f3ff' : 'white',
+                                                                color: isSelected ? 'var(--color-primary)' : '#475569',
+                                                                fontWeight: isSelected ? '600' : '400',
+                                                                cursor: 'pointer',
+                                                                textAlign: 'left',
+                                                                transition: 'all 0.2s',
+                                                                position: 'relative',
+                                                                overflow: 'hidden'
+                                                            }}
+                                                        >
+                                                            {opt}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <div className="modal-actions" style={{ marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                                            <button className="btn btn-secondary" onClick={() => setSelectedMission(null)}>Cancelar</button>
+                                            <button
+                                                className="btn btn-primary"
+                                                onClick={handleSubmitQuiz}
+                                                disabled={quizAnswers.includes(null) || isSubmitting}
+                                            >
+                                                {isSubmitting ? 'Verificando...' : 'Enviar Respuestas'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* Standard Mission Logic */
+                                    <>
+                                        <p style={{ marginBottom: '2rem', color: '#64748b', fontSize: '1rem', lineHeight: '1.6' }}>
+                                            {selectedMission.verification_type === 'link' ? 'Comparte el enlace para verificar tu misión.' :
+                                                selectedMission.verification_type === 'photo' ? 'Sube una foto. Nuestra IA analizará si cumple el objetivo.' :
+                                                    'Confirma que has realizado esta acción.'}
+                                        </p>
+
+                                        {selectedMission.verification_type === 'photo' && (
+                                            <div style={{ marginBottom: '1.5rem' }}>
+                                                {proofFile ? (
+                                                    <div className="preview-container">
+                                                        <img
+                                                            src={URL.createObjectURL(proofFile)}
+                                                            alt="Preview"
+                                                            className="preview-img"
+                                                        />
+                                                        <button
+                                                            className="remove-img-btn"
+                                                            onClick={() => setProofFile(null)}
+                                                        >
+                                                            <FaGlobeAmericas style={{ fontSize: '1.2rem', transform: 'rotate(45deg)' }} />
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <label className="upload-zone">
+                                                        <div className="upload-icon">📷</div>
+                                                        <div style={{ fontWeight: '600', color: '#475569', fontSize: '1.1rem' }}>Subir Foto de Evidencia</div>
+                                                        <div style={{ fontSize: '0.9rem', color: '#94a3b8', marginTop: '0.5rem' }}>JPG, PNG (Max 5MB)</div>
+                                                        <input type="file" hidden accept="image/*" onChange={handleFileChange} />
+                                                    </label>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {selectedMission.verification_type === 'link' && (
+                                            <div className="link-input-group" style={{ marginBottom: '1.5rem' }}>
+                                                <label>Enlace de Evidencia</label>
+                                                <input
+                                                    type="url"
+                                                    className="link-input"
+                                                    placeholder="https://ejemplo.com/evidencia"
+                                                    value={typeof proofFile === 'string' ? proofFile : ''}
+                                                    onChange={(e) => setProofFile(e.target.value)}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {isSubmitting ? (
+                                            <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                                                <div className="spinner"></div>
+                                                <h3 className="analyzing-text">Analizando con IA...</h3>
+                                                <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Verificando tu evidencia en tiempo real</p>
+                                            </div>
+                                        ) : (
+                                            <div className="modal-actions">
+                                                <button className="btn btn-secondary" onClick={() => setSelectedMission(null)}>Cancelar</button>
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={handleSubmitMission}
+                                                    disabled={
+                                                        (selectedMission.verification_type === 'photo' && !proofFile) ||
+                                                        (selectedMission.verification_type === 'link' && (!proofFile || proofFile.length < 5))
+                                                    }
+                                                >
+                                                    {selectedMission.verification_type === 'auto' ? 'Confirmar' : 'Enviar Evidencia'}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </>
                         ) : (
                             <div style={{ textAlign: 'center', padding: '2rem' }}>
-                                <FaCheckCircle style={{ fontSize: '4rem', color: '#10b981', marginBottom: '1rem' }} />
-                                <h2>¡Excelente!</h2>
-                                <p>Has ganado {selectedMission.points} XP</p>
+                                <div className="success-animation">
+                                    <FaCheckCircle style={{ fontSize: '5rem', color: '#10b981', filter: 'drop-shadow(0 10px 20px rgba(16,185,129,0.4))' }} />
+                                </div>
+                                <h2 style={{ color: '#0f172a', marginBottom: '0.5rem' }}>
+                                    {quizResult && quizResult.pointsAwarded === 0 ? "¡Buen Intento!" :
+                                        quizResult && quizResult.score === quizResult.total ? "¡Excelente!" : "¡Bien Hecho!"}
+                                </h2>
+
+                                {quizResult ? (
+                                    <>
+                                        <p style={{ color: '#64748b', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                                            Has acertado <strong style={{ color: '#3b82f6' }}>{quizResult.score}/{quizResult.total}</strong> preguntas.
+                                        </p>
+                                        <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f0f9ff', borderRadius: '12px', border: '1px solid #bae6fd' }}>
+                                            <p style={{ margin: 0, fontWeight: '600', color: '#0369a1' }}>
+                                                {quizResult.score === quizResult.total
+                                                    ? "¡Increíble! Eres un experto en la capa de ozono. 🌟"
+                                                    : quizResult.score > quizResult.total / 2
+                                                        ? "¡Buen trabajo! Vas por buen camino. 👍"
+                                                        : "Sigue aprendiendo, ¡la próxima será perfecta! 💪"}
+                                            </p>
+                                        </div>
+                                        <p style={{ color: '#64748b', marginBottom: '2rem' }}>
+                                            Has ganado <strong style={{ color: '#f59e0b', fontSize: '1.2rem' }}>{quizResult.pointsAwarded} XP</strong>
+                                        </p>
+                                    </>
+                                ) : (
+                                    <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1.1rem' }}>
+                                        Has completado la misión y ganado <strong style={{ color: '#f59e0b', fontSize: '1.2rem' }}>{selectedMission.points} XP</strong>
+                                    </p>
+                                )}
+
+                                <button className="btn btn-primary" onClick={() => { setSelectedMission(null); setShowSuccess(false); setQuizResult(null); setShareModal(null); }}>Continuar</button>
+
+                                {shareModal && (
+                                    <div style={{ marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                                        <p style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#64748b' }}>Edita tu mensaje para la comunidad:</p>
+                                        <textarea
+                                            value={shareMessage}
+                                            onChange={e => setShareMessage(e.target.value)}
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.8rem',
+                                                borderRadius: '8px',
+                                                border: '1px solid #e2e8f0',
+                                                marginBottom: '1rem',
+                                                resize: 'none',
+                                                fontFamily: 'inherit'
+                                            }}
+                                            rows={2}
+                                            placeholder="¡He completado este reto!"
+                                        />
+                                        <button className="btn-share-gold" onClick={handleShareAchievement}>
+                                            <FaShareAlt /> Compartir en la Comunidad
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
             )}
+
+
         </div>
     );
 }

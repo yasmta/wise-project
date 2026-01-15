@@ -94,8 +94,8 @@ export default function Information() {
                             </ul>
                         </nav>
                         <div className="sidebar-footer">
-                            <Link to="/retos" className="btn-mini">
-                                Unirse a la Acción <FaArrowUp style={{ transform: 'rotate(45deg)' }} />
+                            <Link to="/challenges" className="btn-mini">
+                                Ver Retos <FaArrowUp style={{ transform: 'rotate(45deg)' }} />
                             </Link>
                         </div>
                     </div>
@@ -108,15 +108,19 @@ export default function Information() {
                     <section id="summary" className="doc-section scroll-reveal">
                         <div className="glass-card story-card">
                             <div className="card-header-icon"><FaGlobeAmericas /></div>
-                            <h2>En Resumen: ¿Qué hemos descubierto?</h2>
+                            <h2>Resumen del Proyecto</h2>
                             <p className="lead-text">
-                                Hemos viajado atrás en el tiempo a través de cuatro archivos históricos de la NASA y datos mundiales.
-                                Nuestro objetivo: entender la cicatriz del cielo.
+                                Hemos analizado cuatro archivos de datos históricos relacionados con la capa de ozono:
+                                concentración estratosférica de ozono, superficie del agujero de ozono, emisiones naturales
+                                y totales de sustancias que lo destruyen, y consumo mundial de estos gases por países.
                             </p>
                             <p>
-                                ¿Han funcionado realmente los esfuerzos internacionales? ¿O solo nos hemos contado una bonita mentira?
-                                Analizamos la concentración de ozono, el tamaño del agujero y, sobre todo, nuestras propias emisiones
-                                para responder si el peligro ha pasado o si el futuro sigue siendo incierto.
+                                Nuestro objetivo ha sido entender cómo ha evolucionado el agujero de ozono en las últimas
+                                décadas y qué relación tiene con las emisiones y el consumo de sustancias dañinas de
+                                origen humano. A partir de estos datos esperábamos obtener conclusiones sobre si las
+                                políticas internacionales de reducción de CFC y gases similares han tenido efecto real, si se
+                                observa una tendencia de recuperación y hasta qué punto el problema está controlado o
+                                sigue siendo preocupante de cara al futuro.
                             </p>
                         </div>
                     </section>
@@ -130,40 +134,78 @@ export default function Information() {
 
                         <div className="glass-card story-card">
                             <div className="story-block">
-                                <h3>¿Qué es realmente este agujero?</h3>
+                                <h3>¿Qué es el agujero de ozono?</h3>
                                 <p>
-                                    Imagina un escudo invisible en la estratosfera que absorbe la radiación solar mortal. Esa es la capa de ozono.
-                                    Pero la hemos dañado.
+                                    Es una capa en la atmósfera, concretamente ubicada en la estratosfera que nos
+                                    protege de los rayos UV (ultravioletas), ya que son perjudiciales para la salud humana,
+                                    ecosistemas y hasta materiales. Hace de barrera natural absorbiendo gran parte de estos rayos.
                                 </p>
                                 <p>
-                                    Ciertos gases liberados por nosotros han "devorado" partes de este escudo, creando zonas de muy baja concentración
-                                    (agujeros), especialmente sobre la Antártida. No es un agujero físico, es una debilidad en nuestra defensa.
+                                    Esta capa se ha ido dañando por nuestra propia culpa, por diferentes tipos de gases que
+                                    hemos ido liberando a la atmósfera y han dañado la capa de ozono, provocando desajustes
+                                    y alteraciones en las reacciones químicas que se dan en ella. Esto ha dado lugar a zonas
+                                    donde la concentración de ozono es muy baja, que son los “agujeros de ozono”.
                                 </p>
 
                                 <div className="pull-quote">
                                     <FaQuoteLeft className="quote-icon" />
                                     <p>
-                                        Gracias al Protocolo de Montreal (1987), el escudo está sanando.
-                                        Es el mayor éxito ambiental de la historia.
+                                        Gracias al Protocolo de Montreal (1987), que prohibió la fabricación de muchos de
+                                        los compuestos que la dañaban, la capa está en proceso de recuperación.
                                     </p>
+                                </div>
+
+                                <h3 className="mt-4">¿Qué gases lo provocan?</h3>
+                                <p>
+                                    Los principales responsables son las sustancias halogenadas antropogénicas como los CFC,
+                                    halones, tetracloruro de carbono y metilcloroformo. Se usaban en sprays, refrigeración,
+                                    espumas y disolventes.
+                                </p>
+
+                                <div className="details-accordion mt-4">
+                                    <details>
+                                        <summary>
+                                            <div className="summary-trigger">
+                                                <FaLightbulb className="mr-2" />
+                                                <span>Profundizar: La Química de la Destrucción (Equilibrio NOx)</span>
+                                                <FaChevronDown className="accordion-chevron" />
+                                            </div>
+                                        </summary>
+                                        {/* Applied .chemical-deep-dive */}
+                                        <div className="chemical-deep-dive">
+                                            <p className="mb-2">
+                                                En la estratosfera existe un equilibrio natural entre el ozono y los óxidos de nitrógeno (NOx).
+                                                El NO y NO2 destruyen el O3, pero se forma ácido nítrico (HNO3) que mantiene a los NOx inactivos.
+                                            </p>
+                                            <p className="mb-2">
+                                                El problema grave aparece con los compuestos clorados (CFCs). Son muy estables y llegan intactos a la estratosfera.
+                                                Allí, la radiación solar rompe sus enlaces y libera <strong>Cloro</strong>.
+                                            </p>
+                                            <p>
+                                                El cloro actúa como un catalizador: destruye el ozono transformándolo en oxígeno, pero no se consume en el proceso.
+                                                <strong> Un solo átomo de cloro puede destruir miles de moléculas de ozono.</strong>
+                                            </p>
+                                        </div>
+                                    </details>
                                 </div>
                             </div>
 
-                            <div className="story-grid-2">
+                            <div className="story-grid-2 mt-6">
                                 <div className="insight-box warning">
                                     <div className="box-icon"><FaExclamationTriangle /></div>
-                                    <h4>Los Culpables: CFCs</h4>
-                                    <p>
-                                        Clorofluorocarbonos, halones... Nombres complejos para gases cotidianos usados en antiguos
-                                        sprays, aires acondicionados y extintores. La luz solar los rompe y liberan cloro, el asesino del ozono.
-                                    </p>
+                                    <h4>Por qué es relevante</h4>
+                                    <ul className="info-list-sm">
+                                        <li>Daña directamente el ADN, aumentando cáncer de piel y cataratas.</li>
+                                        <li>Daña el fitoplancton marino (base de la cadena alimentaria).</li>
+                                        <li>Afecta cultivos y materiales.</li>
+                                    </ul>
                                 </div>
                                 <div className="insight-box danger">
                                     <div className="box-icon"><FaShieldAlt /></div>
-                                    <h4>¿Por qué importa?</h4>
+                                    <h4>Problema Global</h4>
                                     <p>
-                                        Sin este escudo, aumentan los cánceres de piel y cataratas, y se destruye el fitoplancton,
-                                        la base de la vida marina. Es un problema de supervivencia global.
+                                        Lo causan actividades humanas repartidas por todo el planeta y solo se puede resolver
+                                        con acuerdos internacionales. Es un "caso de estudio" de éxito global.
                                     </p>
                                 </div>
                             </div>
@@ -174,29 +216,37 @@ export default function Information() {
                     <section id="exploration" className="doc-section scroll-reveal">
                         <div className="section-title-wrapper">
                             <h2>La Evidencia</h2>
-                            <p className="section-subtitle">Exploración inicial de los archivos</p>
+                            <p className="section-subtitle">Exploración inicial de los datos</p>
                         </div>
 
                         <div className="glass-card story-card">
-                            <p>Para esta investigación, no hemos especulado. Hemos utilizado datos "crudos" oficiales:</p>
+                            <p>Para esta investigación, hemos analizado los siguientes archivos oficiales:</p>
 
                             <div className="file-cards-grid">
                                 <div className="file-card">
                                     <div className="fc-icon"><FaChartLine /></div>
                                     <strong>Concentración</strong> <span className="text-sm">NASA 1979-2020</span>
+                                    <p className="text-xs">Serie histórica mundial (mínima y media diaria).</p>
                                 </div>
                                 <div className="file-card">
                                     <div className="fc-icon"><FaCircle /></div>
                                     <strong>Superficie Agujero</strong> <span className="text-sm">NASA 1979-2020</span>
+                                    <p className="text-xs">Serie histórica mundial (máxima y media anual).</p>
                                 </div>
                                 <div className="file-card">
                                     <div className="fc-icon"><FaIndustry /></div>
                                     <strong>Emisiones</strong> <span className="text-sm">1961-2014</span>
+                                    <p className="text-xs">Naturales vs Totales de sustancias agotadoras.</p>
                                 </div>
                                 <div className="file-card">
                                     <div className="fc-icon"><FaGlobeAmericas /></div>
-                                    <strong>Consumo País</strong> <span className="text-sm">1989-2014</span>
+                                    <strong>Consumo</strong> <span className="text-sm">1989-2014</span>
+                                    <p className="text-xs">Consumo por país y total mundial.</p>
                                 </div>
+                            </div>
+
+                            <div className="mt-4 text-sm text-white/70">
+                                <em>Datos adicionales considerados para mayor impacto: Rayos UV en superficie, casos mundiales de cataratas y cáncer de piel.</em>
                             </div>
 
                             <div className="details-accordion">
@@ -204,16 +254,19 @@ export default function Information() {
                                     <summary>
                                         <div className="summary-trigger">
                                             <FaTable className="mr-2" />
-                                            <span>Explorar detalles técnicos (Diccionario de Datos)</span>
+                                            <span>Ver descripción de los datos (Diccionario)</span>
                                             <FaChevronDown className="accordion-chevron" />
                                         </div>
                                     </summary>
                                     <div className="table-wrapper mt-4">
                                         <table className="data-table">
-                                            <thead><tr><th>Dato</th><th>Significado</th></tr></thead>
+                                            <thead><tr><th>Columna</th><th>Descripción</th></tr></thead>
                                             <tbody>
-                                                <tr><td>Minimum daily concentration</td><td>El "grosor" mínimo del escudo ese día (U. Dobson).</td></tr>
-                                                <tr><td>Maximum ozone hole area</td><td>La extensión máxima del daño (km²) ese año.</td></tr>
+                                                <tr><td>Minimum daily concentration</td><td>Concentración mínima diaria (U. Dobson). Grosor del escudo.</td></tr>
+                                                <tr><td>Maximum ozone hole area</td><td>Superficie máxima anual del agujero (km²).</td></tr>
+                                                <tr><td>Emisiones Naturales</td><td>Casi constantes (~165k t/año). Fondo base.</td></tr>
+                                                <tr><td>Emisiones Antropogénicas</td><td>(Total - Naturales). La causa humana del problema.</td></tr>
+                                                <tr><td>Consumo (Tonnes)</td><td>Uso de sustancias dañinas. Clave para evaluar políticas.</td></tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -225,8 +278,8 @@ export default function Information() {
                     {/* 5. ANALISIS: The Truth Revealed */}
                     <section id="analysis" className="doc-section scroll-reveal">
                         <div className="section-title-wrapper">
-                            <h2>La Verdad en los Datos</h2>
-                            <p className="section-subtitle">Análisis visual (1979-2020)</p>
+                            <h2>Análisis de Datos</h2>
+                            <p className="section-subtitle">Estadísticas e Interpretación (1979-2020)</p>
                         </div>
 
                         <div className="glass-card story-card">
@@ -234,50 +287,82 @@ export default function Information() {
                             {/* Insight Statistics */}
                             <div className="big-stats-row">
                                 <div className="b-stat">
-                                    <span className="bs-val">-50%</span>
-                                    <span className="bs-label">Caída de Ozono (1979-2020)</span>
+                                    <span className="bs-val">102 UD</span>
+                                    <span className="bs-label">Conc. Media 2020 (vs 225 en 1979)</span>
                                 </div>
                                 <div className="b-stat">
-                                    <span className="bs-val">99%</span>
-                                    <span className="bs-label">Reducción de Consumo</span>
+                                    <span className="bs-val">-99%</span>
+                                    <span className="bs-label">Reducción Consumo (1989-2014)</span>
                                 </div>
                                 <div className="b-stat">
-                                    <span className="bs-val">29M</span>
+                                    <span className="bs-val">29.9M</span>
                                     <span className="bs-label">km² Máxima Extensión</span>
                                 </div>
                             </div>
 
+                            {/* Applied .stats-description-block */}
+                            <div className="stats-description-block">
+                                <h4><FaChartLine /> Estadísticas Descriptivas</h4>
+                                <ul className="styled-list">
+                                    <li>
+                                        <strong>Concentración:</strong> El descenso es especialmente fuerte entre principios de los 80 y mediados de los 90.
+                                        La concentración mínima diaria ha llegado a caer hasta las 73 UD.
+                                    </li>
+                                    <li>
+                                        <strong>Emisiones:</strong> Las naturales son constantes (~165.000 t/año), mientras que las antropogénicas llegaron a multiplicar esa cifra,
+                                        alcanzando 1.295.000 t/año en su pico.
+                                    </li>
+                                    <li>
+                                        <strong>Consumo:</strong> Pasamos de 1.3 millones de toneladas en 1989 a solo 6.922 toneladas en 2014.
+                                    </li>
+                                </ul>
+
+                                <div className="predictions-block">
+                                    <h4>Predicciones (Tendencias)</h4>
+                                    <p className="predictions-text">
+                                        El consumo muestra una clara tendencia lineal descendente hacia cero. Sin embargo, la superficie del agujero
+                                        muestra una estabilización reciente, no una recuperación inmediata. Esto confirma que el agujero responde con
+                                        retraso a nuestras acciones.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <br />
+                                <br />
+                            </div>
+
                             {/* GRAPHS STORY */}
-                            <div className="charts-story-layout">
+                            <div className="charts-story-layout mt-8">
 
                                 <div className="chart-wrapper">
                                     <div className="chart-header">
-                                        <h4>1. El Colapso del Escudo</h4>
-                                        <p>La concentración de Ozono cayó en picado en los 80.</p>
+                                        <h4>1. Concentración (El Deterioro)</h4>
+                                        <p>Cae drásticamente de los 70 a los 90. Luego se mantiene baja con ligeras oscilaciones.</p>
                                     </div>
                                     <img src={chartOzone} alt="Concentración de Ozono" />
                                 </div>
 
                                 <div className="chart-wrapper">
                                     <div className="chart-header">
-                                        <h4>2. La Herida Creciente</h4>
-                                        <p>El agujero creció hasta 2006. Ahora, empieza a estabilizarse.</p>
+                                        <h4>2. Superficie (La Herida)</h4>
+                                        <p>Crece rápido hasta mediados de los 2000. Tiende a estabilizarse, aunque con picos extremos.</p>
                                     </div>
                                     <img src={chartHole} alt="Superficie del Agujero" />
                                 </div>
 
                                 <div className="chart-wrapper">
                                     <div className="chart-header">
-                                        <h4>3. Humanos vs Naturaleza</h4>
-                                        <p>Las emisiones naturales son fijas. Nosotros causamos el pico.</p>
+                                        <h4>3. Emisiones (La Causa)</h4>
+                                        <p>Las naturales son planas. El problema aparece solo cuando añadimos las emisiones humanas masivas.</p>
                                     </div>
                                     <img src={chartEmissions} alt="Emisiones" />
                                 </div>
 
                                 <div className="chart-wrapper">
                                     <div className="chart-header">
-                                        <h4>4. Causa y Efecto</h4>
-                                        <p>Al bajar el consumo (eje X), el agujero deja de crecer.</p>
+                                        <h4>4. Consumo vs Impacto</h4>
+                                        <p>Correlación débilmente negativa: al bajar el consumo, el agujero deja de crecer, pero no desaparece al instante.</p>
                                     </div>
                                     <img src={chartConsumption} alt="Consumo vs Superficie" />
                                 </div>
@@ -287,11 +372,11 @@ export default function Information() {
                             <div className="interpretation-box">
                                 <div className="ib-icon"><FaLightbulb /></div>
                                 <div className="ib-content">
-                                    <h4>Lectura Clave</h4>
+                                    <h4>Interpretación Clave</h4>
                                     <p>
-                                        Aunque dejamos de emitir gases dañinos casi por completo (graf. 4), la atmósfera responde muy lento.
-                                        El daño de los 80 tarda décadas en repararse. Pero la estabilización es innegable:
-                                        <strong> Las políticas funcionan.</strong>
+                                        La atmósfera responde lento. Aunque hemos cerrado el grifo de los gases (consumo casi 0),
+                                        el daño de los 80 tarda décadas en repararse. Sin embargo, la estabilización es real.
+                                        Las políticas de reducción han sido efectivas para frenar el empeoramiento.
                                     </p>
                                 </div>
                             </div>
@@ -302,29 +387,53 @@ export default function Information() {
                     {/* 6. CONCLUSIONES: Moving Forward */}
                     <section id="conclusions" className="doc-section scroll-reveal">
                         <div className="glass-card story-card highlight-card">
-                            <h2>Conclusiones: ¿Qué hemos aprendido?</h2>
+                            <h2>Conclusiones Finales</h2>
+                            <p className="mb-6 text-center text-lg">
+                                El problema no es puntual, es resultado de décadas. Pero hemos aprendido lecciones vitales.
+                            </p>
+                            <br />
 
                             <div className="conclusion-item">
                                 <div className="ci-marker"><FaCheckCircle /></div>
                                 <div className="ci-text">
-                                    <strong>No es inmediato.</strong> Apagar el grifo de la contaminación no limpia el aire al instante.
-                                    La inercia climática es de décadas.
+                                    <strong>Funcionó la cooperación.</strong> El Protocolo de Montreal demuestra que somos capaces de
+                                    corregir errores globales cuando actuamos unidos.
                                 </div>
                             </div>
 
                             <div className="conclusion-item">
                                 <div className="ci-marker"><FaLeaf /></div>
                                 <div className="ci-text">
-                                    <strong>Somos capaces.</strong> Hemos evitado la catástrofe total gracias a la cooperación global.
-                                    El problema está "controlado" pero no resuelto.
+                                    <strong>No es inmediato.</strong> "Apagar el grifo" no limpia el aire al instante.
+                                    La inercia climática es de décadas.
                                 </div>
                             </div>
 
                             <div className="conclusion-item">
                                 <div className="ci-marker"><FaArrowUp /></div>
                                 <div className="ci-text">
-                                    <strong>El futuro es esperanzador.</strong> Si mantenemos el rumbo, las proyecciones indican una recuperación lenta.
-                                    Tu acción individual hoy sigue siendo vital para no retroceder.
+                                    <strong>El futuro.</strong> Si mantenemos las políticas, la mejora continuará. Si nos relajamos,
+                                    podríamos retroceder. La vigilancia sigue siendo necesaria.
+                                </div>
+                            </div>
+
+                            {/* Applied .reflections-box */}
+                            <div className="reflections-box">
+                                <h3>Reflexiones y Sorpresas</h3>
+                                <p>
+                                    Nos ha sorprendido la magnitud de los cambios: el desplome del consumo en tan pocos años y, a la vez,
+                                    la resistencia del agujero a cerrarse rápido. Esto nos deja nuevas preguntas para el futuro:
+                                </p>
+                                <div className="future-questions-list">
+                                    <div className="question-card">
+                                        <FaCheckCircle className="question-icon" /> <span>¿Cuánto tiempo exacto tardará la capa en volver a niveles pre-1980?</span>
+                                    </div>
+                                    <div className="question-card">
+                                        <FaExclamationTriangle className="question-icon" /> <span>¿Qué pasaría si se relajaran las restricciones hoy?</span>
+                                    </div>
+                                    <div className="question-card">
+                                        <FaGlobeAmericas className="question-icon" /> <span>¿Cómo afecta la variabilidad natural año a año?</span>
+                                    </div>
                                 </div>
                             </div>
 

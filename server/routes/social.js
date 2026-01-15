@@ -31,6 +31,10 @@ router.get('/profile/:username', async (req, res) => {
         // Calculate Stats
         const level = Math.floor(user.points / 500) + 1;
 
+        // Calculate Rank (Real-time)
+        const rankData = await db.get('SELECT COUNT(*) + 1 as rank FROM users WHERE points > ?', [user.points]);
+        const rank = rankData ? rankData.rank : '-';
+
         let friendshipStatus = 'none';
         if (requesterId) {
             // Check friendship
@@ -41,7 +45,7 @@ router.get('/profile/:username', async (req, res) => {
             if (f) friendshipStatus = f.status;
         }
 
-        res.json({ ...user, level, friendshipStatus });
+        res.json({ ...user, level, rank, friendshipStatus });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

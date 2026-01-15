@@ -5,14 +5,7 @@ import jwt from 'jsonwebtoken';
 const router = express.Router();
 const SECRET_KEY = 'wise-ozone-secret-key-change-in-prod';
 
-// Auth Middleware (Duplicated or imported? Better to export from auth or a middleware file)
-// For simplicity in this refactor step, I'll inline it or extract it to a middleware file.
-// Let's create a middleware file? Or just put it here.
-// Best practice: `server/middleware/auth.js`.
-// I'll stick to inlining for now to save a file, or better, export it from `auth.js`?
-// No, auth.js is routes.
-// I'll just redefine it here to keep modules self-contained for now, or move it to `server/middleware.js` later.
-
+// Auth Middleware
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -29,12 +22,26 @@ const authenticateToken = (req, res, next) => {
 // Get all posts (or replies)
 router.get('/posts', async (req, res) => {
     const parentId = req.query.parentId || null;
+
+    // Optional Auth to check 'isLiked'
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    let userId = null;
+
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY);
+            userId = decoded.id;
+        } catch (e) { /* invalid token, treat as guest */ }
+    }
+
     try {
         const db = await getDb();
         const query = `
-            SELECT p.*, u.username as author, 
+            SELECT p.*, u.username as author,
             (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as likes,
             (SELECT COUNT(*) FROM posts WHERE parent_id = p.id) as replies
+            ${userId ? `,(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id AND user_id = ${userId}) as user_liked` : ', 0 as user_liked'}
             FROM posts p
             JOIN users u ON p.author_id = u.id
             WHERE p.parent_id ${parentId ? '= ?' : 'IS NULL'}
@@ -42,7 +49,13 @@ router.get('/posts', async (req, res) => {
         `;
         const params = parentId ? [parentId] : [];
         const posts = await db.all(query, params);
-        res.json(posts);
+
+        const formattedPosts = posts.map(p => ({
+            ...p,
+            user_liked: !!p.user_liked
+        }));
+
+        res.json(formattedPosts);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -62,7 +75,7 @@ router.post('/posts', authenticateToken, async (req, res) => {
             [authorId, content, parentId || null]
         );
         const newPost = await db.get(`
-            SELECT p.*, u.username as author, 0 as likes, 0 as replies
+            SELECT p.*, u.username as author, 0 as likes, 0 as replies, 0 as user_liked
             FROM posts p
             JOIN users u ON p.author_id = u.id
             WHERE p.id = ?
@@ -76,7 +89,7 @@ router.post('/posts', authenticateToken, async (req, res) => {
 // Like/Unlike
 router.post('/posts/:id/like', authenticateToken, async (req, res) => {
     const postId = req.params.id;
-    const userId = req.user.id; // Corrected from `user_id` in some contexts, but `req.user.id` is standard
+    const userId = req.user.id;
 
     try {
         const db = await getDb();
@@ -111,13 +124,5 @@ router.delete('/posts/:id', authenticateToken, async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// Update Points (Moved from User/Auth to here or User route? Ideally user route. 
-// But let's check `server.js`... it was `/api/user/update-points`. 
-// I'll put it in `auth.js` or a new `user.js`? `auth` is fine for now as it handles user data.)
-// Wait, `auth.js` has login/register.
-// I'll add `update-points` to `auth.js` (renaming it to `users.js` is better, but `auth.js` is what I made).
-// Or I can add it here? No, Community is for posts, not points.
-// Let's Add it to `auth.js`.
 
 export default router;

@@ -259,3 +259,74 @@
         z-index: 1001;
     }
 }
+
+/* Header.css Additions for Profile Pill */
+
+/* Header.css Additions for New Profile Design */
+
+.user-profile-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    /* More breathing room */
+    padding: 8px 20px 8px 8px;
+    /* Bigger touch target */
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.user-profile-link:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.user-avatar-container {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(167, 139, 250, 0.3);
+    border: 2px solid white;
+}
+
+.user-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-name {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1rem;
+    line-height: 1.1;
+}
+
+.user-points-badge {
+    font-size: 0.8rem;
+    color: #6366f1;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.points-dot {
+    width: 6px;
+    height: 6px;
+    background: #f59e0b;
+    /* Gold */
+    border-radius: 50%;
+    box-shadow: 0 0 5px #f59e0b;
+}

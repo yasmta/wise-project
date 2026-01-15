@@ -21,10 +21,10 @@ export default function Home() {
                     </p>
 
                     <div className="hero-actions">
-                        <Link to="/informacion" className="btn btn-primary btn-lg shine-effect">
+                        <Link to="/informacion" className="btn btn-primary btn-lg shine-effect" style={{ marginLeft: '-40px' }}>
                             Start Mission <FaArrowRight />
                         </Link>
-                        <Link to="/retos" className="btn btn-secondary btn-lg">
+                        <Link to="/challenges" className="btn btn-secondary btn-lg" style={{ marginLeft: '-40px' }}>
                             View Challenges
                         </Link>
                     </div>
@@ -139,7 +139,7 @@ export default function Home() {
                             <div className="icon-crown"><FaRocket /></div>
                             <h2>Ready to explore with us?</h2>
                             <p>Start your journey, earn rewards, and protect the planet.</p>
-                            <Link to="/retos" className="btn btn-primary btn-xl shine-effect">
+                            <Link to="/challenges" className="btn btn-primary btn-xl shine-effect">
                                 Join Now <FaArrowRight />
                             </Link>
                         </div>

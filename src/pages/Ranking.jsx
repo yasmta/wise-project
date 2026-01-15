@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
 import { FaCrown, FaArrowUp, FaArrowDown, FaMinus, FaUserAstronaut } from 'react-icons/fa';
 import './Ranking.css';
@@ -11,7 +12,7 @@ export default function Ranking() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/user/leaderboard')
+        fetch(`${API_URL}/api/user/leaderboard`)
             .then(res => {
                 if (!res.ok) throw new Error('Network response was not ok');
                 return res.json();

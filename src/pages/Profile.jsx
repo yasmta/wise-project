@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
 import {
     FaUserCircle, FaUserPlus, FaEnvelope, FaTrophy, FaStar,
-    FaCheckCircle, FaPaperPlane, FaTimes, FaMedal, FaGlobeAmericas, FaFire, FaShieldAlt
+    FaCheckCircle, FaPaperPlane, FaTimes, FaMedal, FaGlobeAmericas, FaFire, FaShieldAlt,
+    FaKey, FaIdCard
 } from 'react-icons/fa';
 import './Profile.css';
 import Toast from '../components/Toast';
@@ -11,10 +13,12 @@ import BadgeList from '../components/BadgeList';
 
 export default function Profile() {
     const { username } = useParams();
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const [profile, setProfile] = useState(null);
     const [status, setStatus] = useState('none');
     const [loading, setLoading] = useState(true);
+
+    const [activeTab, setActiveTab] = useState('badges'); // 'badges', 'password', 'personal'
 
     // Modal State
     const [isMsgModalOpen, setMsgModalOpen] = useState(false);
@@ -31,7 +35,7 @@ export default function Profile() {
         try {
             const token = localStorage.getItem('token');
             const headers = token ? { 'Authorization': `Bearer ${token}`, 'x-user-id': user?.id } : {};
-            const res = await fetch(`http://localhost:3001/api/social/profile/${username}`, { headers });
+            const res = await fetch(`${API_URL}/api/social/profile/${username}`, { headers });
             const data = await res.json();
 
             if (res.ok) {
@@ -52,7 +56,7 @@ export default function Profile() {
     const sendFriendRequest = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3001/api/social/friends/request', {
+            const res = await fetch(`${API_URL}/api/social/friends/request`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ toUserId: profile.id })
@@ -69,7 +73,7 @@ export default function Profile() {
         if (!msgContent.trim()) return;
         try {
             const token = localStorage.getItem('token');
-            await fetch('http://localhost:3001/api/social/messages', {
+            await fetch(`${API_URL}/api/social/messages`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ toUserId: profile.id, content: msgContent })
@@ -94,131 +98,222 @@ export default function Profile() {
     ];
 
     return (
-        <div className="apps-container fade-in" style={{ paddingTop: '2rem' }}>
+        <>
+            <div className="apps-container fade-in-up" style={{ paddingTop: '2rem' }}>
 
-            {toast.show && (
-                <Toast
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => setToast({ ...toast, show: false })}
-                />
-            )}
+                {toast.show && (
+                    <Toast
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => setToast({ ...toast, show: false })}
+                    />
+                )}
 
-            <div className="profile-grid">
+                <div className="profile-grid">
 
-                {/* 1. HERO CARD (Left) */}
-                <aside className="profile-hero-card">
-                    <div className="hero-cover">
-                        <div className="hero-avatar-container">
-                            <div className="hero-avatar">
-                                {profile.username[0]}
+                    {/* 1. HERO CARD (Left) */}
+                    <aside className="profile-hero-card">
+                        <div className="hero-cover">
+                            <div className="hero-avatar-container">
+                                <div className="hero-avatar">
+                                    {profile.username[0]}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="hero-info">
-                        <h1>{profile.username}</h1>
-                        <div className="hero-handle">@{profile.username}</div>
+                        <div className="hero-info">
+                            <h1>{profile.username}</h1>
+                            <div className="hero-handle">@{profile.username}</div>
 
-                        <div className="level-badge">
-                            <FaMedal /> Nivel {profile.level}
-                        </div>
+                            <div className="level-badge">
+                                <FaMedal /> Nivel {profile.level}
+                            </div>
 
-                        {!isMe && (
+                            {/* ACTIONS / NAVIGATION */}
                             <div className="hero-actions">
-                                {status === 'none' && (
-                                    <button className="btn-action btn-primary" onClick={sendFriendRequest}>
-                                        <FaUserPlus /> Añadir Amigo
-                                    </button>
+                                {isMe ? (
+                                    <div className="profile-nav-menu">
+                                        <button
+                                            className={`nav-btn ${activeTab === 'badges' ? 'active' : ''}`}
+                                            onClick={() => setActiveTab('badges')}
+                                        >
+                                            <FaTrophy /> Insignias
+                                        </button>
+                                        {user?.username === 'xaviserra' && (
+                                            <button
+                                                className="nav-btn"
+                                                onClick={() => window.location.href = '/admin'}
+                                                style={{ color: '#fbbf24', borderColor: '#fbbf24' }}
+                                            >
+                                                <FaShieldAlt /> Panel Admin
+                                            </button>
+                                        )}
+                                        <button
+                                            className={`nav-btn ${activeTab === 'personal' ? 'active' : ''}`}
+                                            onClick={() => setActiveTab('personal')}
+                                        >
+                                            <FaIdCard /> Mis Datos
+                                        </button>
+                                        <button
+                                            className={`nav-btn ${activeTab === 'password' ? 'active' : ''}`}
+                                            onClick={() => setActiveTab('password')}
+                                        >
+                                            <FaKey /> Contraseña
+                                        </button>
+                                        <button className="nav-btn logout" onClick={logout}>
+                                            <FaUserCircle /> Cerrar Sesión
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {status === 'none' && (
+                                            <button className="btn-action btn-primary" onClick={sendFriendRequest}>
+                                                <FaUserPlus /> Añadir Amigo
+                                            </button>
+                                        )}
+                                        {status === 'pending' && (
+                                            <button className="btn-action btn-secondary" disabled>
+                                                Solicitud Pendiente
+                                            </button>
+                                        )}
+                                        {status === 'accepted' && (
+                                            <button className="btn-action btn-secondary" style={{ color: '#10b981', borderColor: '#10b981' }} disabled>
+                                                <FaCheckCircle /> Amigos
+                                            </button>
+                                        )}
+                                        <button className="btn-action btn-secondary" onClick={() => setMsgModalOpen(true)}>
+                                            <FaEnvelope /> Enviar Mensaje
+                                        </button>
+                                    </>
                                 )}
-                                {status === 'pending' && (
-                                    <button className="btn-action btn-secondary" disabled>
-                                        Solicitud Pendiente
-                                    </button>
-                                )}
-                                {status === 'accepted' && (
-                                    <button className="btn-action btn-secondary" style={{ color: '#10b981', borderColor: '#10b981' }} disabled>
-                                        <FaCheckCircle /> Amigos
-                                    </button>
-                                )}
-                                <button className="btn-action btn-secondary" onClick={() => setMsgModalOpen(true)}>
-                                    <FaEnvelope /> Enviar Mensaje
-                                </button>
                             </div>
+                        </div>
+                    </aside>
+
+                    {/* 2. STATS DASHBOARD (Right Top) */}
+                    <section className="stats-dashboard">
+                        <div className="stat-box">
+                            <div className="stat-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
+                                <FaStar />
+                            </div>
+                            <span className="stat-val">{profile.points}</span>
+                            <span className="stat-label">XP Total</span>
+                        </div>
+
+                        <div className="stat-box">
+                            <div className="stat-icon" style={{ background: '#f3e8ff', color: '#9333ea' }}>
+                                <FaTrophy />
+                            </div>
+                            <span className="stat-val">#{profile.rank}</span>
+                            <span className="stat-label">Ranking Global</span>
+                        </div>
+
+                        <div className="stat-box">
+                            <div className="stat-icon" style={{ background: '#e0f2fe', color: '#0284c7' }}>
+                                <FaFire />
+                            </div>
+                            <span className="stat-val">12</span>
+                            <span className="stat-label">Racha Días</span>
+                        </div>
+                    </section>
+
+                    {/* 3. MAIN CONTENT (Right Bottom) */}
+                    <div className="profile-main-content">
+
+                        {activeTab === 'badges' && (
+                            <section className="content-showcase fade-in-up">
+                                <div className="section-title">
+                                    <FaTrophy style={{ color: '#f59e0b' }} /> Insignias del Ozono
+                                </div>
+                                <BadgeList targetUserId={profile.id} />
+                            </section>
                         )}
-                    </div>
-                </aside>
 
-                {/* 2. STATS DASHBOARD (Right Top) */}
-                <section className="stats-dashboard">
-                    <div className="stat-box">
-                        <div className="stat-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
-                            <FaStar />
-                        </div>
-                        <span className="stat-val">{profile.points}</span>
-                        <span className="stat-label">XP Total</span>
+                        {activeTab === 'personal' && (
+                            <section className="content-showcase fade-in-up">
+                                <div className="section-title">
+                                    <FaIdCard style={{ color: '#3b82f6' }} /> Mis Datos Personales
+                                </div>
+                                <form className="settings-form" onSubmit={(e) => { e.preventDefault(); showToast('Datos actualizados', 'success'); }}>
+                                    <div className="form-group">
+                                        <label>Nombre de Usuario</label>
+                                        <input type="text" value={profile.username} disabled style={{ opacity: 0.7 }} />
+                                        <small>El nombre de usuario no se puede cambiar.</small>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Correo Electrónico (Simulado)</label>
+                                        <input type="email" defaultValue={`${profile.username.toLowerCase()}@wise.com`} />
+                                    </div>
+                                    <button type="submit" className="btn-action btn-primary" style={{ marginTop: '1rem' }}>Guardar Cambios</button>
+                                </form>
+                            </section>
+                        )}
+
+                        {activeTab === 'password' && (
+                            <section className="content-showcase fade-in-up">
+                                <div className="section-title">
+                                    <FaKey style={{ color: '#8b5cf6' }} /> Cambiar Contraseña
+                                </div>
+                                <form className="settings-form" onSubmit={(e) => { e.preventDefault(); showToast('Contraseña actualizada', 'success'); }}>
+                                    <div className="form-group">
+                                        <label>Contraseña Actual</label>
+                                        <input type="password" placeholder="••••••••" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Nueva Contraseña</label>
+                                        <input type="password" placeholder="••••••••" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Confirmar Contraseña</label>
+                                        <input type="password" placeholder="••••••••" />
+                                    </div>
+                                    <button type="submit" className="btn-action btn-primary" style={{ marginTop: '1rem' }}>Actualizar Contraseña</button>
+                                </form>
+                            </section>
+                        )}
+
                     </div>
 
-                    <div className="stat-box">
-                        <div className="stat-icon" style={{ background: '#f3e8ff', color: '#9333ea' }}>
-                            <FaTrophy />
-                        </div>
-                        <span className="stat-val">#{profile.id < 10 ? `0${profile.id}` : profile.id}</span>
-                        <span className="stat-label">Ranking Global</span>
-                    </div>
+                </div>
 
-                    <div className="stat-box">
-                        <div className="stat-icon" style={{ background: '#e0f2fe', color: '#0284c7' }}>
-                            <FaFire />
-                        </div>
-                        <span className="stat-val">12</span>
-                        <span className="stat-label">Racha Días</span>
-                    </div>
-                </section>
 
-                {/* 3. BADGES & ACHIEVEMENTS SHOWCASE (Right Bottom) */}
-                <section className="content-showcase">
-                    <div className="section-title">
-                        <FaTrophy style={{ color: '#f59e0b' }} /> Insignias del Ozono
-                    </div>
-
-                    <BadgeList targetUserId={profile.id} />
-                </section>
 
             </div>
 
-            {/* MESSAGE MODAL (Reused Logic) */}
-            {isMsgModalOpen && (
-                <div className="modal-overlay" onClick={() => setMsgModalOpen(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <h3 style={{ margin: 0, color: '#111' }}>Mensaje para {profile.username}</h3>
-                            <button onClick={() => setMsgModalOpen(false)} style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer' }}><FaTimes /></button>
-                        </div>
-                        <form onSubmit={sendMessage}>
-                            <textarea
-                                autoFocus
-                                value={msgContent}
-                                onChange={e => setMsgContent(e.target.value)}
-                                style={{
-                                    width: '100%', height: '140px', padding: '1rem',
-                                    borderRadius: '16px', border: '1px solid #e5e7eb',
-                                    backgroundColor: '#f9fafb', marginBottom: '1.5rem',
-                                    resize: 'none', fontFamily: 'inherit', fontSize: '1rem'
-                                }}
-                                placeholder={`Hola ${profile.username}, me gustaría contarte que...`}
-                            />
-                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                                <button type="button" className="btn-action btn-secondary" style={{ width: 'auto' }} onClick={() => setMsgModalOpen(false)}>Cancelar</button>
-                                <button type="submit" className="btn-action btn-primary" style={{ width: 'auto' }}>
-                                    Enviar <FaPaperPlane style={{ marginLeft: 8 }} />
-                                </button>
+            {/* MESSAGE MODAL (Reused Logic) - Moved Outside Container to fix Fixed Positioning */}
+            {
+                isMsgModalOpen && (
+                    <div className="modal-overlay" onClick={() => setMsgModalOpen(false)}>
+                        <div className="modal-content" onClick={e => e.stopPropagation()}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <h3 style={{ margin: 0, color: '#111' }}>Mensaje para {profile.username}</h3>
+                                <button onClick={() => setMsgModalOpen(false)} style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer' }}><FaTimes /></button>
                             </div>
-                        </form>
+                            <form onSubmit={sendMessage}>
+                                <textarea
+                                    autoFocus
+                                    value={msgContent}
+                                    onChange={e => setMsgContent(e.target.value)}
+                                    style={{
+                                        width: '100%', height: '140px', padding: '1rem',
+                                        borderRadius: '16px', border: '1px solid #e5e7eb',
+                                        backgroundColor: '#f9fafb', marginBottom: '1.5rem',
+                                        resize: 'none', fontFamily: 'inherit', fontSize: '1rem'
+                                    }}
+                                    placeholder={`Hola ${profile.username}, me gustaría contarte que...`}
+                                />
+                                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                                    <button type="button" className="btn-action btn-secondary" style={{ width: 'auto' }} onClick={() => setMsgModalOpen(false)}>Cancelar</button>
+                                    <button type="submit" className="btn-action btn-primary" style={{ width: 'auto' }}>
+                                        Enviar <FaPaperPlane style={{ marginLeft: 8 }} />
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-
-        </div>
-    );
+                )
+            }
+        </>
+    )
 }
+

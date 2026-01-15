@@ -24,14 +24,36 @@ router.get('/', authenticateToken, async (req, res) => {
 
         // Enrich with user status
         const enriched = await Promise.all(challenges.map(async (c) => {
-            const userChal = await db.get(
-                'SELECT status, completed_at FROM user_challenges WHERE user_id = ? AND challenge_id = ? ORDER BY completed_at DESC LIMIT 1',
-                [req.user.id, c.id]
-            );
+            let status = 'available';
+            let completedAt = null;
+
+            if (c.verification_type === 'quiz') {
+                // For quizzes, check the specialized user_quizzes table
+                // We assume completing ANY quiz marks the "Weekly Quiz" challenge as done for now
+                const userQuiz = await db.get(
+                    'SELECT completed_at FROM user_quizzes WHERE user_id = ? ORDER BY completed_at DESC LIMIT 1',
+                    [req.user.id]
+                );
+                if (userQuiz) {
+                    status = 'approved';
+                    completedAt = userQuiz.completed_at;
+                }
+            } else {
+                // For other challenges, check user_challenges
+                const userChal = await db.get(
+                    'SELECT status, completed_at FROM user_challenges WHERE user_id = ? AND challenge_id = ? ORDER BY completed_at DESC LIMIT 1',
+                    [req.user.id, c.id]
+                );
+                if (userChal) {
+                    status = userChal.status;
+                    completedAt = userChal.completed_at;
+                }
+            }
+
             return {
                 ...c,
-                status: userChal ? userChal.status : 'available', // available, pending, approved
-                completed_at: userChal ? userChal.completed_at : null
+                status,
+                completed_at: completedAt
             };
         }));
 
@@ -48,13 +70,23 @@ router.post('/submit', authenticateToken, async (req, res) => {
     const userId = req.user.id;
 
     // Simulate AI verification delay
-    // await new Promise(r => setTimeout(r, 1000));
+    // await new Promise(r => setTimeout(r, 1000)); // Handled by frontend for UX now
 
     // Assume verification PASSES for prototype
     const status = 'approved';
 
     try {
         const db = await getDb();
+
+        // 0. Get Challenge and Validate
+        const challenge = await db.get('SELECT * FROM challenges WHERE id = ?', [challengeId]);
+        if (!challenge) return res.status(404).json({ error: 'Challenge not found' });
+
+        if (challenge.verification_type === 'link') {
+            if (!proofContent || !proofContent.startsWith('http')) {
+                return res.status(400).json({ error: 'Invalid link provided' });
+            }
+        }
 
         // 1. Record User Challenge
         await db.run(
@@ -63,21 +95,19 @@ router.post('/submit', authenticateToken, async (req, res) => {
         );
 
         // 2. Award Points
-        const challenge = await db.get('SELECT title, points, category FROM challenges WHERE id = ?', [challengeId]);
-        if (challenge) {
-            await db.run('UPDATE users SET points = points + ? WHERE id = ?', [challenge.points, userId]);
+        await db.run('UPDATE users SET points = points + ? WHERE id = ?', [challenge.points, userId]);
 
-            // 3. Log Action for Badges (IMPORTANT)
-            let actionType = 'challenge_general';
-            const title = challenge.title || '';
-            if (title.includes('Nevera') || title.includes('Clean')) actionType = 'clean_fridge';
-            if (title.includes('Reciclar') || title.includes('Recycle')) actionType = 'recycle_appliance';
+        // 3. Log Action for Badges (IMPORTANT)
+        let actionType = 'challenge_general';
+        const title = challenge.title || '';
+        if (title.includes('Nevera') || title.includes('Clean')) actionType = 'clean_fridge';
+        if (title.includes('Reciclar') || title.includes('Recycle')) actionType = 'recycle_appliance';
 
-            await db.run('INSERT INTO user_actions (user_id, action_type, action_data) VALUES (?, ?, ?)',
-                [userId, actionType, JSON.stringify({ challengeId: challenge.id, title: challenge.title })]);
-        }
+        await db.run('INSERT INTO user_actions (user_id, action_type, action_data) VALUES (?, ?, ?)',
+            [userId, actionType, JSON.stringify({ challengeId: challenge.id, title: challenge.title })]);
 
-        res.json({ success: true, status: 'approved', pointsEarned: challenge ? challenge.points : 0 });
+
+        res.json({ success: true, status: 'approved', pointsEarned: challenge.points });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to submit' });

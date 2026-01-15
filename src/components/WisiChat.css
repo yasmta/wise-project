@@ -1,0 +1,426 @@
+/* WisiChat.css - Premium Overhaul */
+
+/* Import matching font just in case, though it's likely global */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --wisi-primary: #a78bfa;
+    --wisi-primary-dark: #7c3aed;
+    --wisi-gradient: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+    --wisi-text: #4a1d96;
+    --wisi-glass-bg: rgba(255, 255, 255, 0.75);
+    --wisi-glass-border: rgba(255, 255, 255, 0.6);
+    --wisi-shadow: 0 20px 60px rgba(167, 139, 250, 0.25);
+}
+
+.wisi-chat-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 10000;
+    font-family: 'Outfit', sans-serif;
+}
+
+/* --- TRIGGER BUTTON --- */
+.wisi-trigger {
+    width: 110px;
+    height: 110px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 10px 15px rgba(167, 139, 250, 0.3));
+}
+
+.wisi-trigger:hover {
+    transform: scale(1.1) rotate(5deg) translateY(-5px);
+    filter: drop-shadow(0 15px 25px rgba(167, 139, 250, 0.4));
+}
+
+.wisi-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: float-wisi 6s ease-in-out infinite;
+}
+
+@keyframes float-wisi {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* --- CHAT WINDOW (The Glass Card) --- */
+.wisi-window {
+    position: absolute;
+    bottom: 120px;
+    right: 10px;
+    width: 380px;
+    height: 520px;
+    /* Reduced to avoid eating the header */
+    max-height: 65vh;
+    /* Safer max height for small screens */
+    background: var(--wisi-glass-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--wisi-glass-border);
+    border-radius: 28px;
+    box-shadow: var(--wisi-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform-origin: bottom right;
+
+    /* Animation States Default (Closed) */
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wisi-window.open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: all;
+}
+
+/* --- HEADER --- */
+.wisi-header {
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wisi-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: var(--wisi-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wisi-header-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    padding: 2px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.wisi-close {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--wisi-text);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wisi-close:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.5);
+    transform: rotate(90deg);
+}
+
+/* --- MESSAGES AREA --- */
+.wisi-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+}
+
+/* Scrollbar styling */
+.wisi-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.wisi-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.wisi-messages::-webkit-scrollbar-thumb {
+    background: rgba(167, 139, 250, 0.3);
+    border-radius: 10px;
+}
+
+/* Messages Bubbles */
+.message {
+    max-width: 85%;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    position: relative;
+    word-wrap: break-word;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+}
+
+.message.user {
+    align-self: flex-end;
+    background: var(--wisi-gradient);
+    color: white;
+    border-radius: 20px 20px 4px 20px;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+}
+
+.message.system {
+    align-self: flex-start;
+    background: #ffffff;
+    color: var(--wisi-text);
+    border-radius: 20px 20px 20px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.message-content {
+    margin-bottom: 6px;
+}
+
+/* Emoticons Container */
+.message-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.message.user .message-badges {
+    justify-content: flex-end;
+}
+
+.message.system .message-badges {
+    justify-content: flex-start;
+}
+
+/* The Emoticons */
+.message img.emoji-badge {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.message img.emoji-badge:hover {
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* --- TYPING INDICATOR --- */
+.typing-indicator {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    display: inline-flex;
+    gap: 4px;
+    align-self: flex-start;
+    margin-left: 10px;
+}
+
+.typing-indicator span {
+    width: 6px;
+    height: 6px;
+    background: var(--wisi-primary);
+    border-radius: 50%;
+    animation: typing-bounce 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes typing-bounce {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* --- INPUT AREA --- */
+.wisi-input-area {
+    padding: 16px 20px 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    position: relative;
+}
+
+.wisi-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.8);
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--wisi-text);
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.wisi-input:focus {
+    background: #ffffff;
+    border-color: var(--wisi-primary);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+}
+
+.wisi-btn {
+    background: white;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--wisi-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.wisi-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(167, 139, 250, 0.2);
+    color: var(--wisi-primary-dark);
+}
+
+.wisi-btn.send {
+    background: var(--wisi-gradient);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.wisi-btn.send:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+}
+
+.wisi-btn.send:disabled {
+    background: #ccc;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* --- BADGE PICKER --- */
+.wisi-badge-picker {
+    position: absolute;
+    bottom: 85px;
+    left: 15px;
+    right: 15px;
+    height: 220px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 16px 36px 16px 16px;
+    /* Significantly increased right padding */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* Reduced to 4 to ensure space */
+    gap: 6px;
+    /* Slightly tighter gap */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 1);
+    z-index: 10001;
+    animation: picker-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Force no horizontal scroll */
+}
+
+@keyframes picker-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Scrollbar for picker */
+.wisi-badge-picker::-webkit-scrollbar {
+    width: 6px;
+}
+
+.wisi-badge-picker::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+}
+
+.wisi-badge-picker::-webkit-scrollbar-thumb {
+    background: rgba(167, 139, 250, 0.3);
+    border-radius: 10px;
+}
+
+.badge-option {
+    aspect-ratio: 1;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 6px;
+    background: #f8fafc;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.badge-option:hover {
+    background: #ffffff;
+    border-color: var(--wisi-primary);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(167, 139, 250, 0.15);
+}
+
+.badge-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

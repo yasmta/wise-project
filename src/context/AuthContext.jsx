@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import API_URL from '../api';
 
 const AuthContext = createContext();
 
@@ -43,7 +44,7 @@ export function AuthProvider({ children }) {
             // Sync with backend
             try {
                 const token = localStorage.getItem('token');
-                await fetch('http://localhost:3001/api/user/update-points', {
+                await fetch(`${API_URL}/api/user/update-points`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

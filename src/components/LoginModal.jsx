@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import './Modal.css'; // Shared styles? We'll create or use existing
@@ -15,7 +16,7 @@ export default function LoginModal({ onClose, onSwitchToRegister }) {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/auth/login', {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })

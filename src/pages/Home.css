@@ -70,6 +70,9 @@
     display: flex;
     gap: 1rem;
     margin-bottom: 3rem;
+    justify-content: flex-start;
+
+    /* Stronger nudge left for optical alignment */
 }
 
 .hero-stats-mini {
@@ -302,6 +305,22 @@
     background: white;
     transform: translateX(10px);
     box-shadow: var(--shadow-soft);
+}
+
+.f-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.f-text strong {
+    font-size: 1.1rem;
+    color: var(--color-primary-dark);
+}
+
+.f-text span {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
 }
 
 .f-icon {

@@ -10,6 +10,8 @@ import Challenges from './pages/Challenges';
 import Ranking from './pages/Ranking';
 import Community from './pages/Community';
 import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminDashboard';
+import WisiChat from './components/WisiChat';
 
 function App() {
     return (
@@ -25,9 +27,11 @@ function App() {
                             <Route path="/ranking" element={<Ranking />} />
                             <Route path="/comunidad" element={<Community />} />
                             <Route path="/profile/:username" element={<Profile />} />
+                            <Route path="/admin" element={<AdminDashboard />} />
                         </Routes>
                     </main>
                     <Footer />
+                    <WisiChat />
                 </div>
             </Router>
         </AuthProvider>

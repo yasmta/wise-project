@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import API_URL from '../api';
 import { useAuth } from '../context/AuthContext';
 import { FaLock } from 'react-icons/fa';
 
@@ -19,7 +20,7 @@ export default function BadgeList({ targetUserId }) { // targetUserId allows vie
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
             const [badgesRes, userBadgesRes] = await Promise.all([
-                fetch('http://localhost:3001/api/badges', { headers }),
+                fetch(`${API_URL}/api/badges`, { headers }),
                 // If viewing another profile, we might need a different endpoint, 
                 // but for now let's assume we want to show badges of the profile we are viewing.
                 // However, the current backend implementation for 'my-badges' only returns *my* badges.
@@ -27,7 +28,7 @@ export default function BadgeList({ targetUserId }) { // targetUserId allows vie
                 // or if we add a public endpoint later. 
                 // Assuming `targetUserId` is meaningful (it's not fully wired in backend yet for public view).
                 // Let's stick to showing *current user's* badges or make a "my-badges" call.
-                fetch('http://localhost:3001/api/badges/my-badges', { headers })
+                fetch(`${API_URL}/api/badges/my-badges`, { headers })
             ]);
 
             const badgesData = await badgesRes.json();
