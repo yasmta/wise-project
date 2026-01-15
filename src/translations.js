@@ -65,6 +65,9 @@ export const translations = {
         continents: "Continentes",
         monitoring: "Monitorización",
 
+        // Footer
+        footer_text: "Proyecto WISE · Plataforma ciudadana para la protección de la capa de ozono",
+
         // Information
         info_main_title: "LA CAPA DE OZONO",
         info_authors: "Yasmina Tamouh y Valeria Linares | WISE - 2025/2026",
@@ -1045,7 +1048,7 @@ export const translations = {
         monitoring: "Monitorizare",
 
         // Footer
-        footer_text: "Proiectul WISE · Platformă cetățenească pentru protecția stratului de ozon",
+        footer_text: "Proiectul WISE · Platformă cetățenească pentru protecția stratului de ozono",
 
         // BadgeList
         badge_loading: "Se încarcă insignele...",
